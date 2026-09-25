@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>구간별 수집 지도 - 영상수집</title>
+<!-- Google Fonts: Noto Sans KR & Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&amp;family=Public+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {},
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["'Noto Sans KR'", "'Public Sans'", "sans-serif"],
+            display: ["'Noto Sans KR'", "'Public Sans'", "sans-serif"],
+            body: ["'Noto Sans KR'", "'Public Sans'", "sans-serif"],
+            label: ["'Noto Sans KR'", "'Public Sans'", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    body {
+      font-family: 'Noto Sans KR', 'Public Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      background-color: #F5F5F3;
+    }
+    /* Pulse ring animation for collector user location */
+    @keyframes location-pulse {
+      0% {
+        transform: scale(0.9);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.6);
+        opacity: 0.2;
+      }
+      100% {
+        transform: scale(0.9);
+        opacity: 0.7;
+      }
+    }
+    .pulse-effect {
+      animation: location-pulse 2.2s infinite ease-in-out;
+      transform-origin: center;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#F5F5F3] text-[#1C1C1A] flex justify-center min-h-screen overflow-x-hidden">
+<!-- Mobile Portrait Shell (390px Max Standard) -->
+<div class="w-full max-w-[390px] min-w-0 h-screen bg-white flex flex-col relative overflow-hidden">
+<!-- Top Navigation Header -->
+<header class="w-full h-14 bg-white flex items-center justify-between px-4 z-40 shrink-0">
+<div class="flex items-center gap-2">
+<h1 class="text-[17px] font-medium text-[#1C1C1A] tracking-tight">지도</h1>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#EBF3FA] text-[#2B6CB0]">
+          전체 42%
+        </span>
+</div>
+</header>
+<!-- Filter Chips Row -->
+<div class="w-full bg-white px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar z-40 shrink-0">
+<button class="shrink-0 px-4 py-2.5 rounded-full text-[14px] font-medium bg-[#1C1C1A] text-white" type="button">
+        전체
+      </button>
+<button class="shrink-0 px-4 py-2.5 rounded-full text-[14px] font-medium bg-white text-[#6B6A65] border border-[#E3E2DD] active:bg-[#F5F5F3] transition-colors" type="button">
+        내 촬영
+      </button>
+<button class="shrink-0 px-4 py-2.5 rounded-full text-[14px] font-medium bg-white text-[#6B6A65] border border-[#E3E2DD] active:bg-[#F5F5F3] transition-colors" type="button">
+        반려
+      </button>
+</div>
+<!-- Street Map View Canvas -->
+<main class="relative flex-1 w-full overflow-hidden bg-[#F5F5F3]" data-location="Seoul, Seongbuk-dong">
+<!-- Vector Map Canvas (Crisp Segments & Clean Urban Geometry) -->
+<svg class="absolute inset-0 w-full h-full select-none" fill="none" viewbox="0 0 390 540" xmlns="http://www.w3.org/2000/svg">
+<!-- Subtle City Block Footprints (Utilitarian Tinted Surfaces) -->
+<g fill="#EAEAE6" opacity="0.65">
+<rect height="96" rx="4" width="70" x="24" y="24"></rect>
+<rect height="42" rx="4" width="130" x="110" y="24"></rect>
+<rect height="96" rx="4" width="108" x="256" y="24"></rect>
+<rect height="38" rx="4" width="130" x="110" y="82"></rect>
+<rect height="120" rx="4" width="70" x="24" y="136"></rect>
+<rect height="120" rx="4" width="60" x="110" y="136"></rect>
+<rect height="60" rx="4" width="54" x="186" y="136"></rect>
+<rect height="44" rx="4" width="54" x="186" y="212"></rect>
+<rect height="120" rx="4" width="108" x="256" y="136"></rect>
+<rect height="110" rx="4" width="70" x="24" y="272"></rect>
+<rect height="110" rx="4" width="130" x="110" y="272"></rect>
+<rect height="50" rx="4" width="108" x="256" y="272"></rect>
+<rect height="44" rx="4" width="108" x="256" y="338"></rect>
+<rect height="120" rx="4" width="70" x="24" y="398"></rect>
+<rect height="120" rx="4" width="60" x="110" y="398"></rect>
+<rect height="120" rx="4" width="178" x="186" y="398"></rect>
+</g>
+<!-- Landmarks & Building POI text (Utilitarian style) -->
+<g fill="#888780" font-family="'Noto Sans KR', sans-serif" font-size="10">
+<text text-anchor="middle" x="175" y="48">성북초교</text>
+<text text-anchor="middle" x="59" y="74">성북주민센터</text>
+<text text-anchor="middle" x="310" y="74">동소문우체국</text>
+<text text-anchor="middle" x="140" y="198">한성마트</text>
+<text text-anchor="middle" x="310" y="198">삼선치안센터</text>
+<text text-anchor="middle" x="175" y="330">성북천 산책로</text>
+<text text-anchor="middle" x="275" y="460">한성대입구역 방면</text>
+</g>
+<!-- Street Road Segments Layer (Intersections cleanly broken) -->
+<!-- Stroke 7px, flat/square ends to connect at intersections cleanly -->
+<!-- === Horizontal Corridors === -->
+<!-- Top Crosstown (y = 128) -->
+<!-- 성북로 서편: 검수완료 (#97C459) -->
+<line stroke="#97C459" stroke-linecap="round" stroke-width="7" x1="12" x2="102" y1="128" y2="128"></line>
+<!-- 성북로 중앙 1: 촬영완료·검수전 (#EF9F27) -->
+<line stroke="#EF9F27" stroke-width="7" x1="102" x2="178" y1="128" y2="128"></line>
+<!-- 성북로 중앙 2: 검수완료 (#97C459) -->
+<line stroke="#97C459" stroke-width="7" x1="178" x2="248" y1="128" y2="128"></line>
+<!-- 성북로 동편: 미촬영 (#888780) -->
+<line stroke="#888780" stroke-linecap="round" stroke-width="7" x1="248" x2="378" y1="128" y2="128"></line>
+<!-- Mid Main Boulevard - 동소문로 (y = 264) -->
+<!-- 구간 1: 검수완료 (#97C459) -->
+<line stroke="#97C459" stroke-linecap="round" stroke-width="8" x1="12" x2="102" y1="264" y2="264"></line>
+<!-- 구간 2: 촬영완료·검수전 (#EF9F27) - User Vehicle sits here -->
+<line stroke="#EF9F27" stroke-width="8" x1="102" x2="178" y1="264" y2="264"></line>
+<!-- 구간 3: 반려 (#E24B4A) -->
+<line stroke="#E24B4A" stroke-width="8" x1="178" x2="248" y1="264" y2="264"></line>
+<!-- 구간 4: 미촬영 (#888780) -->
+<line stroke="#888780" stroke-linecap="round" stroke-width="8" x1="248" x2="378" y1="264" y2="264"></line>
+<!-- Lower Crosstown - 삼선교로 (y = 390) -->
+<!-- 남측 1: 반려 (#E24B4A) -->
+<line stroke="#E24B4A" stroke-linecap="round" stroke-width="7" x1="12" x2="102" y1="390" y2="390"></line>
+<!-- 남측 2: 촬영완료·검수전 (#EF9F27) -->
+<line stroke="#EF9F27" stroke-width="7" x1="102" x2="178" y1="390" y2="390"></line>
+<!-- 남측 3: 미촬영 (#888780) -->
+<line stroke="#888780" stroke-linecap="round" stroke-width="7" x1="178" x2="378" y1="390" y2="390"></line>
+<!-- Top Micro Alley (y = 74) -->
+<line stroke="#888780" stroke-linecap="round" stroke-width="5" x1="102" x2="248" y1="74" y2="74"></line>
+<!-- Mid Sub Alley (y = 204) -->
+<line stroke="#EF9F27" stroke-linecap="round" stroke-width="5" x1="178" x2="248" y1="204" y2="204"></line>
+<!-- === Vertical Corridors === -->
+<!-- West Vertical Line (x = 102) -->
+<line stroke="#97C459" stroke-linecap="round" stroke-width="7" x1="102" x2="102" y1="12" y2="128"></line>
+<line stroke="#97C459" stroke-width="7" x1="102" x2="102" y1="128" y2="264"></line>
+<line stroke="#888780" stroke-width="7" x1="102" x2="102" y1="264" y2="390"></line>
+<line stroke="#888780" stroke-linecap="round" stroke-width="7" x1="102" x2="102" y1="390" y2="528"></line>
+<!-- Mid-West Line (x = 178) -->
+<line stroke="#EF9F27" stroke-width="7" x1="178" x2="178" y1="128" y2="264"></line>
+<line stroke="#97C459" stroke-width="7" x1="178" x2="178" y1="264" y2="390"></line>
+<line stroke="#EF9F27" stroke-linecap="round" stroke-width="7" x1="178" x2="178" y1="390" y2="528"></line>
+<!-- East Center Line (x = 248) -->
+<line stroke="#888780" stroke-linecap="round" stroke-width="7" x1="248" x2="248" y1="12" y2="128"></line>
+<line stroke="#888780" stroke-width="7" x1="248" x2="248" y1="128" y2="264"></line>
+<line stroke="#888780" stroke-width="7" x1="248" x2="248" y1="264" y2="390"></line>
+<line stroke="#888780" stroke-linecap="round" stroke-width="7" x1="248" x2="248" y1="390" y2="528"></line>
+<!-- Diagonal Connecting Road (Shortcut to Station) -->
+<line stroke="#97C459" stroke-linecap="round" stroke-width="7" x1="248" x2="368" y1="390" y2="510"></line>
+<!-- Road Names / Street Text Labels (Along primary axes) -->
+<g fill="#1C1C1A" font-family="'Noto Sans KR', sans-serif" font-size="11" font-weight="500">
+<text text-anchor="middle" x="56" y="122">성북로</text>
+<text text-anchor="middle" x="312" y="122">성북로</text>
+<text text-anchor="middle" x="56" y="256">동소문로</text>
+<text text-anchor="middle" x="312" y="256">동소문로</text>
+<text text-anchor="middle" x="56" y="384">삼선교로</text>
+<text text-anchor="middle" x="290" y="384">삼선교로 16길</text>
+</g>
+<!-- Current User Position / Field Vehicle Marker -->
+<!-- Positioned at x=142, y=264 (동소문로 상) -->
+<g transform="translate(142, 264)">
+<!-- Pulsing outer circle halo -->
+<circle class="pulse-effect" cx="0" cy="0" fill="#2B6CB0" opacity="0.25" r="16"></circle>
+<!-- White boundary edge ring -->
+<circle cx="0" cy="0" fill="#FFFFFF" r="7.5"></circle>
+<!-- Crisp Primary Blue Core -->
+<circle cx="0" cy="0" fill="#2B6CB0" r="5"></circle>
+</g>
+</svg>
+<!-- Floating Map Tools: Top Right -->
+<aside aria-label="지도 조작" class="absolute top-3 right-3 flex flex-col gap-2 z-30">
+<button aria-label="레이어 변경" class="w-11 h-11 bg-white rounded-xl border border-[#E3E2DD] flex items-center justify-center text-[#1C1C1A] active:bg-[#F5F5F3] transition-colors" type="button">
+<span class="material-symbols-outlined text-[22px]" data-icon="layers">layers</span>
+</button>
+<button aria-label="내 위치로 이동" class="w-11 h-11 bg-white rounded-xl border border-[#E3E2DD] flex items-center justify-center text-[#2B6CB0] active:bg-[#F5F5F3] transition-colors" type="button">
+<span class="material-symbols-outlined text-[22px]" data-icon="my_location">my_location</span>
+</button>
+</aside>
+<!-- Floating Map Legend Card: Bottom Left -->
+<section aria-label="수집 상태 범례" class="absolute bottom-4 left-4 z-30 bg-white/95 rounded-xl border border-[#E3E2DD] px-3.5 py-3 w-[152px]">
+<div class="flex flex-col gap-2">
+<!-- Item 1: 미촬영 -->
+<div class="flex items-center gap-2.5">
+<span class="w-4 h-1.5 rounded-full bg-[#888780] shrink-0"></span>
+<span class="text-[12px] font-normal text-[#1C1C1A] leading-none">미촬영</span>
+</div>
+<!-- Item 2: 촬영완료·검수전 -->
+<div class="flex items-center gap-2.5">
+<span class="w-4 h-1.5 rounded-full bg-[#EF9F27] shrink-0"></span>
+<span class="text-[12px] font-normal text-[#1C1C1A] leading-none">촬영완료·검수전</span>
+</div>
+<!-- Item 3: 검수완료 -->
+<div class="flex items-center gap-2.5">
+<span class="w-4 h-1.5 rounded-full bg-[#97C459] shrink-0"></span>
+<span class="text-[12px] font-normal text-[#1C1C1A] leading-none">검수완료</span>
+</div>
+<!-- Item 4: 반려 -->
+<div class="flex items-center gap-2.5">
+<span class="w-4 h-1.5 rounded-full bg-[#E24B4A] shrink-0"></span>
+<span class="text-[12px] font-normal text-[#1C1C1A] leading-none">반려</span>
+</div>
+</div>
+</section>
+<!-- Vehicle Driving Mode Quick Indicator Floating on Bottom Right -->
+<div class="absolute bottom-4 right-4 z-30">
+<div class="bg-white/95 border border-[#E3E2DD] rounded-xl px-3 py-2 flex items-center gap-1.5 text-xs text-[#1C1C1A]">
+<span class="w-2 h-2 rounded-full bg-[#2B6CB0]"></span>
+<span class="font-medium text-[12px]">수집 대기중</span>
+</div>
+</div>
+</main>
+<nav aria-label="메인 내비게이션" class="shrink-0 w-full flex justify-around items-center h-16 bg-white border-t border-[#E3E2DD] px-2 ">
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-[12px] leading-none">홈</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#2B6CB0] font-medium gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="text-[12px] leading-none">지도</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">videocam</span>
+<span class="text-[12px] leading-none">촬영</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">photo_library</span>
+<span class="text-[12px] leading-none">앨범</span>
+</a>
+</nav>
+</div>
+</body></html>

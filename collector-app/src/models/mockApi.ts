@@ -1,0 +1,56 @@
+import type { BBox, ClipTrace, Progress, RoadSegment, Video } from './types';
+
+// 백엔드가 준비되기 전까지 화면 개발용으로 쓰는 가짜 응답.
+// api.ts와 같은 모양을 유지할 것 — 교체는 controllers에서 import만 바꾸면 된다.
+
+const seoul = { lat: 37.5503, lon: 127.0731 };   // 실기기 테스트 위치(세종대) 근방. 실제 대상 지역과 무관
+
+const line = (n: number, dLat: number, dLon: number): [number, number][] =>
+  Array.from({ length: n }, (_, i) => [seoul.lat + dLat * i, seoul.lon + dLon * i]);
+
+export const mockProgress: Progress = {
+  total_ratio: 0.42,
+  my_distance_m: 18400,
+  confirmed_distance_m: 8100,
+  pending_distance_m: 4300,
+};
+
+export const mockRoads: RoadSegment[] = [
+  { road_id: 'm11', road_number: '1', road_name: '동소문로', status: 'accepted', geometry: line(6, 0.0004, 0.0009) },
+  { road_id: 'm12', road_number: '2', road_name: '동소문로', status: 'rejected', reject_reason: 'GPS 이상', geometry: line(5, -0.0005, 0.0008) },
+  { road_id: 'm13', road_number: '3', road_name: '동소문로', status: 'pending', geometry: line(7, 0.0006, -0.0007) },
+  { road_id: 'm14', road_number: '1', road_name: '보문로', status: 'none', geometry: line(8, -0.0007, -0.0005) },
+];
+
+export const mockClips: ClipTrace[] = [
+  { video_id: 1042, status: 'pending', geometry: line(5, 0.0003, 0.0004) },
+];
+
+export const mockVideos: Video[] = [
+  { video_id: 1042, video_name: 'clip_1042.mp4', upload_date: '2026-09-20T13:47:00+09:00', duration_sec: 18, distance_m: 112, review: 'pending', superseded: false, upload: 'done' },
+  { video_id: 1041, video_name: 'clip_1041.mp4', upload_date: '2026-09-20T13:44:00+09:00', duration_sec: 21, distance_m: 130, review: 'rejected', reject_reason: 'GPS 이상', reviewed_at: '2026-09-22T18:30:00+09:00', superseded: false, upload: 'done' },
+  { video_id: 1038, video_name: 'clip_1038.mp4', upload_date: '2026-09-19T15:01:00+09:00', duration_sec: 17, distance_m: 104, review: 'rejected', reject_reason: '화질 불량', reviewed_at: '2026-09-20T10:12:00+09:00', superseded: true, upload: 'done' },
+  { video_id: 1037, video_name: 'clip_1037.mp4', upload_date: '2026-09-19T14:58:00+09:00', duration_sec: 19, distance_m: 118, review: 'accepted', superseded: false, upload: 'done' },
+];
+
+const delay = <T,>(v: T, ms = 300) => new Promise<T>(r => setTimeout(() => r(v), ms));
+
+export const mockApi = {
+  health: () => delay({ ok: true }),
+  login: (username: string, _password: string) => delay({ refresh_token: 'mock-token', user: { user_id: 'u1', username } }),
+  signup: (username: string, _password: string) =>
+    username === 'taken'   // 아이디 중복 에러 화면 확인용
+      ? delay(null).then(() => { throw new Error('409'); })
+      : delay({ refresh_token: 'mock-token', user: { user_id: 'u2', username } }),
+  progress: () => delay(mockProgress),
+  coverage: () => delay({ cells: [] }),
+  roads: (_b: BBox, _limit?: number) => delay({ roads: mockRoads, truncated: false }),
+  clips: () => delay({ clips: mockClips }),
+  videos: (params: { status?: string; reviewed_after?: string; cursor?: string } = {}) => delay({
+    items: mockVideos.filter(v =>
+      (!params.status || v.review === params.status) &&
+      (!params.reviewed_after || (v.reviewed_at ?? '') > params.reviewed_after)),
+    next_cursor: null,
+  }),
+  video: (id: number) => delay(mockVideos.find(v => v.video_id === id)!),
+};

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>영상수집 - 앨범</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&amp;family=Noto+Sans+KR:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {},
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            display: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            body: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            label: ["Public Sans", "Noto Sans KR", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+    body {
+      font-family: 'Public Sans', 'Noto Sans KR', sans-serif;
+      background-color: #F5F5F3;
+      color: #1C1C1A;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Hide scrollbars for clean chip slider */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex justify-center min-h-screen bg-[#F5F5F3] antialiased selection:bg-blue-100">
+<!-- Mobile Screen Container (Strictly 390px fixed simulation wrapper for portrait inspection) -->
+<div class="w-full max-w-[390px] min-w-0 min-h-screen bg-[#FFFFFF] flex flex-col relative pb-20">
+<!-- Top Bar (56px tall, flat, utilitarian) -->
+<header class="sticky top-0 z-40 bg-white border-b border-[#E3E2DD] h-14 flex items-center justify-between px-3">
+<h1 class="font-headline text-[17px] font-medium text-[#1C1C1A] tracking-tight flex-1 ml-1">
+        앨범
+      </h1>
+<div class="flex items-center gap-1">
+<button aria-label="업로드" class="relative w-11 h-11 flex items-center justify-center text-[#1C1C1A] active:bg-[#F5F5F3] rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[22px]">cloud_upload</span>
+<span class="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-[#EF9F27] text-white text-[10px] font-medium leading-4 text-center">3</span>
+</button>
+<button aria-label="필터" class="w-11 h-11 flex items-center justify-center text-[#1C1C1A] active:bg-[#F5F5F3] rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[22px]">tune</span>
+</button>
+</div>
+</header>
+<!-- Horizontal Scrollable Filter Chips -->
+<section class="bg-white border-b border-[#E3E2DD] px-4 py-2.5">
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+<!-- Selected Chip -->
+<button class="flex-shrink-0 bg-[#1C1C1A] text-white rounded-full px-4 py-2.5 text-[14px] font-medium tracking-normal transition-colors" type="button">
+          전체
+        </button>
+<!-- Unselected Chips -->
+<button class="flex-shrink-0 bg-[#F5F5F3] text-[#1C1C1A] border border-[#E3E2DD] rounded-full px-4 py-2.5 text-[14px] font-normal transition-colors" type="button">
+          업로드 대기
+        </button>
+<button class="flex-shrink-0 bg-[#F5F5F3] text-[#1C1C1A] border border-[#E3E2DD] rounded-full px-4 py-2.5 text-[14px] font-normal transition-colors" type="button">
+          검수 대기
+        </button>
+<button class="flex-shrink-0 bg-[#F5F5F3] text-[#1C1C1A] border border-[#E3E2DD] rounded-full px-4 py-2.5 text-[14px] font-normal transition-colors" type="button">
+          반려
+        </button>
+</div>
+</section>
+<!-- Vertical Video List (6 Distinct Cards) -->
+<main class="flex-1 px-4 py-1 flex flex-col gap-2.5">
+<!-- Card 1: 검수완료 -->
+<article class="bg-white border border-[#E3E2DD] rounded-xl p-3 flex items-center justify-between relative overflow-hidden">
+<!-- Left Thumbnail -->
+<div class="w-16 h-16 rounded-lg bg-[#F5F5F3] border border-[#E3E2DD] relative overflow-hidden flex-shrink-0 flex items-center justify-center">
+<!-- Mini Route Map Illustration -->
+<svg class="w-full h-full text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 64 64">
+<rect fill="#F8F8F6" height="64" width="64"></rect>
+<!-- Grid roads -->
+<path d="M0 24H64 M0 46H64 M20 0V64 M44 0V64" stroke="#E6E5DF" stroke-width="1.5"></path>
+<!-- Traveled route -->
+<path d="M12 52L26 28L48 20" stroke="#2B6CB0" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle cx="12" cy="52" fill="#2B6CB0" r="2.5" stroke="white" stroke-width="1"></circle>
+<circle cx="48" cy="20" fill="#97C459" r="2.5" stroke="white" stroke-width="1"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-[#1C1C1A]/85 text-white text-[10px] font-medium px-1 rounded tracking-tight">0:18</span>
+</div>
+<!-- Middle Content -->
+<div class="flex-1 min-w-0 ml-3 flex flex-col justify-center gap-0.5">
+<p class="text-[15px] font-medium text-[#1C1C1A] truncate tracking-tight">성북로 12길</p>
+<p class="text-xs text-[#6B6A65]">26/09/20 13:47 · 18초 · 112m</p>
+<div class="pt-0.5">
+<span class="inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-[#EBF7E3] text-[#4D8C1E]">
+              검수완료
+            </span>
+</div>
+</div>
+<!-- Far Right -->
+<div class="flex-shrink-0 ml-2 flex items-center justify-center text-[#6B6A65]">
+<span class="material-symbols-outlined text-[20px]" title="업로드 완료">cloud_done</span>
+</div>
+</article>
+<!-- Card 2: 검수 대기 -->
+<article class="bg-white border border-[#E3E2DD] rounded-xl p-3 flex items-center justify-between relative overflow-hidden">
+<!-- Left Thumbnail -->
+<div class="w-16 h-16 rounded-lg bg-[#F5F5F3] border border-[#E3E2DD] relative overflow-hidden flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 64 64">
+<rect fill="#F8F8F6" height="64" width="64"></rect>
+<path d="M0 18H64 M0 42H64 M28 0V64 M50 0V64" stroke="#E6E5DF" stroke-width="1.5"></path>
+<path d="M14 18L32 36L46 54" stroke="#2B6CB0" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle cx="14" cy="18" fill="#2B6CB0" r="2.5" stroke="white" stroke-width="1"></circle>
+<circle cx="46" cy="54" fill="#EF9F27" r="2.5" stroke="white" stroke-width="1"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-[#1C1C1A]/85 text-white text-[10px] font-medium px-1 rounded tracking-tight">0:25</span>
+</div>
+<!-- Middle Content -->
+<div class="flex-1 min-w-0 ml-3 flex flex-col justify-center gap-0.5">
+<p class="text-[15px] font-medium text-[#1C1C1A] truncate tracking-tight">성북로 10길</p>
+<p class="text-xs text-[#6B6A65]">26/09/20 13:30 · 25초 · 160m</p>
+<div class="pt-0.5">
+<span class="inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-[#FEF6E7] text-[#EF9F27]">
+              검수 대기
+            </span>
+</div>
+</div>
+<!-- Far Right -->
+<div class="flex-shrink-0 ml-2 flex items-center justify-center text-[#6B6A65]">
+<span class="material-symbols-outlined text-[20px]" title="업로드 완료">cloud_done</span>
+</div>
+</article>
+<!-- Card 3: 반려 -->
+<article class="bg-white border border-[#E3E2DD] rounded-xl p-3 flex items-center justify-between relative overflow-hidden">
+<!-- Left Thumbnail -->
+<div class="w-16 h-16 rounded-lg bg-[#F5F5F3] border border-[#E3E2DD] relative overflow-hidden flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 64 64">
+<rect fill="#F8F8F6" height="64" width="64"></rect>
+<path d="M0 30H64 M32 0V64" stroke="#E6E5DF" stroke-width="1.5"></path>
+<path d="M12 40L32 30L44 46" stroke="#2B6CB0" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle cx="12" cy="40" fill="#2B6CB0" r="2.5" stroke="white" stroke-width="1"></circle>
+<circle cx="44" cy="46" fill="#E24B4A" r="2.5" stroke="white" stroke-width="1"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-[#1C1C1A]/85 text-white text-[10px] font-medium px-1 rounded tracking-tight">0:14</span>
+</div>
+<!-- Middle Content -->
+<div class="flex-1 min-w-0 ml-3 flex flex-col justify-center gap-0.5">
+<p class="text-[15px] font-medium text-[#1C1C1A] truncate tracking-tight">동소문로 6길</p>
+<p class="text-xs text-[#6B6A65]">26/09/20 13:12 · 14초 · 85m</p>
+<div class="pt-0.5 flex items-center gap-1.5">
+<span class="inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-[#FDF2F2] text-[#E24B4A]">
+              반려
+            </span>
+<span class="text-xs text-[#6B6A65]">사유: GPS 이상</span>
+</div>
+</div>
+<!-- Far Right -->
+<div class="flex-shrink-0 ml-2 flex items-center justify-center text-[#6B6A65]">
+<span class="material-symbols-outlined text-[20px]" title="업로드 완료">cloud_done</span>
+</div>
+</article>
+<!-- Card 4: 반려 · 재촬영됨 (전체 카드 딤드) -->
+<article class="bg-[#F5F5F3]/70 border border-[#E3E2DD] rounded-xl p-3 flex items-center justify-between relative overflow-hidden opacity-60">
+<!-- Left Thumbnail -->
+<div class="w-16 h-16 rounded-lg bg-[#F5F5F3] border border-[#E3E2DD] relative overflow-hidden flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 64 64">
+<rect fill="#F8F8F6" height="64" width="64"></rect>
+<path d="M0 20H64 M24 0V64" stroke="#E6E5DF" stroke-width="1.5"></path>
+<path d="M16 20L42 20L42 48" stroke="#888780" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle cx="16" cy="20" fill="#888780" r="2.5" stroke="white" stroke-width="1"></circle>
+<circle cx="42" cy="48" fill="#888780" r="2.5" stroke="white" stroke-width="1"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-[#1C1C1A]/70 text-white text-[10px] font-medium px-1 rounded tracking-tight">0:19</span>
+</div>
+<!-- Middle Content -->
+<div class="flex-1 min-w-0 ml-3 flex flex-col justify-center gap-0.5">
+<p class="text-[15px] font-medium text-[#1C1C1A] truncate tracking-tight">삼선교로 3길</p>
+<p class="text-xs text-[#6B6A65]">26/09/20 12:45 · 19초 · 120m</p>
+<div class="pt-0.5">
+<span class="inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-[#F5F5F3] text-[#6B6A65]">
+              반려 · 재촬영됨
+            </span>
+</div>
+</div>
+<!-- Far Right -->
+<div class="flex-shrink-0 ml-2 flex items-center justify-center text-[#6B6A65]">
+<span class="material-symbols-outlined text-[20px]" title="업로드 완료">cloud_done</span>
+</div>
+</article>
+<!-- Card 5: 업로드 중 (Uploading) -->
+<article class="bg-white border border-[#E3E2DD] rounded-xl p-3 flex items-center justify-between relative overflow-hidden">
+<!-- Left Thumbnail -->
+<div class="w-16 h-16 rounded-lg bg-[#F5F5F3] border border-[#E3E2DD] relative overflow-hidden flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 64 64">
+<rect fill="#F8F8F6" height="64" width="64"></rect>
+<path d="M0 32H64 M18 0V64 M46 0V64" stroke="#E6E5DF" stroke-width="1.5"></path>
+<path d="M18 48L34 24L52 32" stroke="#2B6CB0" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle cx="18" cy="48" fill="#2B6CB0" r="2.5" stroke="white" stroke-width="1"></circle>
+<circle cx="52" cy="32" fill="#2B6CB0" r="2.5" stroke="white" stroke-width="1"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-[#1C1C1A]/85 text-white text-[10px] font-medium px-1 rounded tracking-tight">0:21</span>
+</div>
+<!-- Middle Content -->
+<div class="flex-1 min-w-0 ml-3 flex flex-col justify-center gap-0.5">
+<p class="text-[15px] font-medium text-[#1C1C1A] truncate tracking-tight">보문로 15길</p>
+<p class="text-xs text-[#6B6A65]">26/09/20 14:02 · 21초 · 135m</p>
+<div class="pt-0.5 flex items-center gap-1 text-xs text-[#2B6CB0] font-medium">
+<span class="material-symbols-outlined text-[14px] animate-spin">sync</span>
+<span>서버 업로드 중...</span>
+</div>
+</div>
+<!-- Far Right -->
+<div class="flex-shrink-0 ml-2 flex flex-col items-end justify-center">
+<span class="text-sm font-medium text-[#2B6CB0] leading-tight">62%</span>
+<span class="text-[10px] text-[#6B6A65] leading-tight">전송 중</span>
+</div>
+<!-- Bottom Edge Progress Bar -->
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-[#F5F5F3]">
+<div class="h-full bg-[#2B6CB0] w-[62%] transition-all duration-300"></div>
+</div>
+</article>
+<!-- Card 6: 업로드 실패 (Failed) -->
+<article class="bg-white border border-[#E3E2DD] rounded-xl p-3 flex items-center justify-between relative overflow-hidden">
+<!-- Left Thumbnail -->
+<div class="w-16 h-16 rounded-lg bg-[#F5F5F3] border border-[#E3E2DD] relative overflow-hidden flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 64 64">
+<rect fill="#F8F8F6" height="64" width="64"></rect>
+<path d="M0 26H64 M38 0V64" stroke="#E6E5DF" stroke-width="1.5"></path>
+<path d="M14 50L38 26L52 26" stroke="#2B6CB0" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle cx="14" cy="50" fill="#2B6CB0" r="2.5" stroke="white" stroke-width="1"></circle>
+<circle cx="52" cy="26" fill="#E24B4A" r="2.5" stroke="white" stroke-width="1"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-[#1C1C1A]/85 text-white text-[10px] font-medium px-1 rounded tracking-tight">0:12</span>
+</div>
+<!-- Middle Content -->
+<div class="flex-1 min-w-0 ml-3 flex flex-col justify-center gap-0.5">
+<p class="text-[15px] font-medium text-[#1C1C1A] truncate tracking-tight">정릉로 8길</p>
+<p class="text-xs text-[#6B6A65]">26/09/20 12:10 · 12초 · 75m</p>
+</div>
+<!-- Far Right -->
+<div class="flex-shrink-0 ml-2 flex flex-col items-end justify-center gap-1">
+<span class="text-xs font-medium text-[#E24B4A] flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">error</span>
+            업로드 실패
+          </span>
+<button class="text-xs text-[#2B6CB0] border border-[#2B6CB0]/30 px-2.5 py-0.5 rounded bg-[#EBF2FA]/50 hover:bg-blue-100 active:bg-blue-200 transition-colors font-medium" type="button">
+            재시도
+          </button>
+</div>
+</article>
+</main>
+</div>
+<nav aria-label="메인 내비게이션" class="fixed bottom-0 left-0 right-0 z-50 w-full flex justify-around items-center h-16 bg-white border-t border-[#E3E2DD] px-2 max-w-[390px] mx-auto">
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-[12px] leading-none">홈</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">map</span>
+<span class="text-[12px] leading-none">지도</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">videocam</span>
+<span class="text-[12px] leading-none">촬영</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#2B6CB0] font-medium gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">photo_library</span>
+<span class="text-[12px] leading-none">앨범</span>
+</a>
+</nav>
+</body></html>

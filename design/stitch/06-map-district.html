@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>전체 수집 현황 지도 - 영상수집</title>
+<!-- Google Fonts: Public Sans / Noto Sans KR -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {},
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {},
+          fontFamily: {
+            headline: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            display: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            body: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            label: ["Public Sans", "Noto Sans KR", "sans-serif"]
+          },
+          fontSize: {}
+        },
+      },
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Hide scrollbars for pill overflow while keeping momentum touch scroll */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Hardware acceleration for mobile map smoothness */
+    .map-canvas {
+      touch-action: pan-x pan-y;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-white text-[#1C1C1A] font-body antialiased flex flex-col h-screen overflow-hidden select-none">
+<!-- TOP APP BAR (Focused screen: Back Arrow left, Title, Total percentage badge) -->
+<header class="flex justify-between items-center w-full px-4 h-14 fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#E3E2DD]">
+<div class="flex items-center gap-2">
+<h1 class="font-headline text-[17px] font-medium tracking-tight text-[#1C1C1A]">지도</h1>
+</div>
+<!-- Status indicator badge -->
+<div class="flex items-center">
+<span class="bg-[#EBF3FB] text-[#2B6CB0] font-medium text-xs px-3 py-1 rounded-full border border-[#D0E2F3]">
+        전체 42%
+      </span>
+</div>
+</header>
+<!-- SECOND ROW / FILTER CHIPS -->
+<nav aria-label="필터" class="fixed top-14 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[#E3E2DD] px-4 py-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
+<!-- Active Filter -->
+<button class="shrink-0 bg-[#1C1C1A] text-white font-medium px-4 py-2.5 rounded-full text-[14px] transition-colors" type="button">
+      전체
+    </button>
+<!-- Inactive Filters -->
+<button class="shrink-0 bg-[#F5F5F3] text-[#1C1C1A] hover:bg-[#EAEAE6] active:opacity-80 font-normal px-4 py-2.5 rounded-full text-[14px] border border-[#E3E2DD] transition-colors" type="button">
+      내 촬영
+    </button>
+<button class="shrink-0 bg-[#F5F5F3] text-[#1C1C1A] hover:bg-[#EAEAE6] active:opacity-80 font-normal px-4 py-2.5 rounded-full text-[14px] border border-[#E3E2DD] transition-colors" type="button">
+      반려
+    </button>
+<!-- Micro contextual tag -->
+<div class="ml-auto shrink-0 text-[11px] text-[#6B6A65] flex items-center gap-1 pl-2">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-[#EF9F27]"></span>
+      실시간 갱신됨
+    </div>
+</nav>
+<!-- MAIN CANVAS: CARTOGRAPHIC DISTRICT OVERVIEW -->
+<main class="relative flex-1 w-full mt-[102px] mb-0 bg-[#F7F6F2] overflow-hidden map-canvas flex items-center justify-center">
+<!-- District Substructure / SVG Choropleth Vector Map -->
+<div class="relative w-full h-full flex items-center justify-center p-2">
+<svg class="w-full h-full max-h-[724px] object-contain drop- select-none" viewbox="0 0 420 540" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Subtle canvas background grid cue -->
+<pattern height="28" id="carto-grid" patternunits="userSpaceOnUse" width="28">
+<path d="M 28 0 L 0 0 0 28" fill="none" stroke="#ECEBE4" stroke-width="0.75"></path>
+</pattern>
+</defs>
+<!-- Base cartographic grid texture -->
+<rect fill="url(#carto-grid)" height="540" width="420"></rect>
+<!-- Neighboring District boundaries (ambient reference context) -->
+<path d="M 12 110 L 95 35 L 210 20 L 290 40 L 390 120" fill="none" stroke="#E3E2DD" stroke-dasharray="4 4" stroke-width="2"></path>
+<path d="M 15 390 L 80 490 L 260 520 L 400 440" fill="none" stroke="#E3E2DD" stroke-dasharray="4 4" stroke-width="2"></path>
+<!-- ================= DISTRICT NEIGHBORHOOD POLYGONS (성북구 9개 동) ================= -->
+<!-- 1. 정릉동 (4% - nearly empty wash) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.05)" points="45,95 185,55 180,185 85,210 30,165" stroke="#94A3B8" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-[#1C1C1A]" text-anchor="middle" x="105" y="125">정릉동</text>
+<text class="font-headline text-[18px] font-medium fill-[#6B6A65]" text-anchor="middle" x="105" y="148">4%</text>
+</g>
+<!-- 2. 길음동 (58% - medium wash) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.58)" points="185,55 295,45 285,150 180,185" stroke="#94A3B8" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-[#1C1C1A]" text-anchor="middle" x="235" y="108">길음동</text>
+<text class="font-headline text-[18px] font-medium fill-white" text-anchor="middle" x="235" y="131">58%</text>
+</g>
+<!-- 3. 월곡동 (85% - strong deep blue) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.85)" points="295,45 400,90 395,225 285,150" stroke="#64748B" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-white" text-anchor="middle" x="340" y="128">월곡동</text>
+<text class="font-headline text-[19px] font-medium fill-white" text-anchor="middle" x="340" y="152">85%</text>
+</g>
+<!-- 4. 성북동 (62% - medium blue) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.62)" points="30,165 85,210 110,335 20,320 15,220" stroke="#94A3B8" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-[#1C1C1A]" text-anchor="middle" x="58" y="240">성북동</text>
+<text class="font-headline text-[18px] font-medium fill-white" text-anchor="middle" x="58" y="264">62%</text>
+</g>
+<!-- 5. 돈암동 (54% - medium blue) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.54)" points="85,210 180,185 240,245 185,295 110,335" stroke="#94A3B8" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-[#1C1C1A]" text-anchor="middle" x="160" y="248">돈암동</text>
+<text class="font-headline text-[18px] font-medium fill-white" text-anchor="middle" x="160" y="272">54%</text>
+</g>
+<!-- 6. 동선동 (88% - intense blue) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.88)" points="180,185 285,150 315,260 240,245" stroke="#64748B" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-white" text-anchor="middle" x="250" y="200">동선동</text>
+<text class="font-headline text-[19px] font-medium fill-white" text-anchor="middle" x="250" y="224">88%</text>
+</g>
+<!-- 7. 삼선동 (9% - faint wash) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.09)" points="110,335 185,295 210,395 105,430 75,370" stroke="#94A3B8" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-[#1C1C1A]" text-anchor="middle" x="150" y="352">삼선동</text>
+<text class="font-headline text-[18px] font-medium fill-[#6B6A65]" text-anchor="middle" x="150" y="375">9%</text>
+</g>
+<!-- 8. 안암동 (91% - strong deep blue) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.91)" points="240,245 315,260 395,225 385,340 280,360 210,395 185,295" stroke="#64748B" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-white" text-anchor="middle" x="290" y="302">안암동</text>
+<text class="font-headline text-[19px] font-medium fill-white" text-anchor="middle" x="290" y="326">91%</text>
+</g>
+<!-- 9. 보문동 (47% - light-medium wash) -->
+<g class="cursor-pointer transition-opacity active:opacity-70">
+<polygon fill="rgba(43, 108, 176, 0.47)" points="210,395 280,360 355,445 270,475 190,460" stroke="#94A3B8" stroke-linejoin="round" stroke-width="1.2"></polygon>
+<text class="font-headline text-[13px] font-medium fill-[#1C1C1A]" text-anchor="middle" x="265" y="415">보문동</text>
+<text class="font-headline text-[18px] font-medium fill-white" text-anchor="middle" x="265" y="438">47%</text>
+</g>
+<!-- Outer District Border Accent -->
+<path d="M 45,95 L 185,55 L 295,45 L 400,90 L 395,225 L 385,340 L 355,445 L 270,475 L 190,460 L 105,430 L 75,370 L 20,320 L 15,220 L 30,165 Z" fill="none" stroke="#2B6CB0" stroke-linejoin="round" stroke-opacity="0.35" stroke-width="2.5"></path>
+</svg>
+</div>
+<!-- FLOATING OVERLAY: Bottom Left Legend -->
+<div class="absolute bottom-5 left-4 z-30 bg-white/95 backdrop-blur-sm border border-[#E3E2DD] rounded-xl p-3 shadow-none w-44">
+<div class="flex items-center justify-between mb-1.5">
+<span class="text-[12px] font-medium text-[#1C1C1A]">수집 달성률</span>
+<span class="text-[11px] text-[#6B6A65]">기준: 구간길이</span>
+</div>
+<!-- Continuous opacity bar -->
+<div class="h-2.5 w-full rounded-full border border-[#CBD5E1]" style="background: linear-gradient(to right, rgba(43,108,176,0.05), rgba(43,108,176,0.5), rgba(43,108,176,1));"></div>
+<div class="flex justify-between items-center text-[10px] text-[#6B6A65] font-medium mt-1">
+<span>0%</span>
+<span>50%</span>
+<span>100%</span>
+</div>
+</div>
+<!-- FLOATING OVERLAY: Bottom Right District summary pill -->
+<div class="absolute bottom-5 right-4 z-30 bg-white border border-[#E3E2DD] rounded-full px-3.5 py-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#2B6CB0]"></span>
+<span class="text-[12px] font-medium text-[#1C1C1A]">성북구 관내 (9개 동)</span>
+</div>
+<!-- Context Field Action: Recenter / Target view (Generous target for vehicle/one-hand use) -->
+<button aria-label="현재 구역 중심 맞춤" class="absolute top-4 right-4 z-30 w-11 h-11 bg-white border border-[#E3E2DD] rounded-xl flex items-center justify-center text-[#1C1C1A] hover:bg-[#F5F5F3] active:opacity-80" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="my_location">my_location</span>
+</button>
+</main>
+<!-- QUICK ACTION / FOOTER DRAWER CTA (Minimal utilitarian road worker tool) -->
+<footer class="bg-white border-t border-[#E3E2DD] p-3 z-40">
+<div class="max-w-md mx-auto flex items-center gap-2">
+<button class="flex-1 bg-[#2B6CB0] text-white font-medium h-[52px] rounded-lg text-[15px] flex items-center justify-center gap-2 active:opacity-80 transition-opacity" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="videocam">videocam</span>
+<span>선택 구역 촬영 시작</span>
+</button>
+<button aria-label="구간 목록 보기" class="w-[52px] h-[52px] bg-white border border-[#E3E2DD] rounded-lg flex items-center justify-center text-[#1C1C1A] hover:bg-[#F5F5F3] active:opacity-80 transition-colors" type="button">
+<span class="material-symbols-outlined text-[22px]" data-icon="format_list_bulleted">format_list_bulleted</span>
+</button>
+</div>
+</footer>
+<nav aria-label="메인 내비게이션" class="fixed bottom-0 left-0 right-0 z-50 w-full flex justify-around items-center h-16 bg-white border-t border-[#E3E2DD] px-2 ">
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-[12px] leading-none">홈</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#2B6CB0] font-medium gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="text-[12px] leading-none">지도</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">videocam</span>
+<span class="text-[12px] leading-none">촬영</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">photo_library</span>
+<span class="text-[12px] leading-none">앨범</span>
+</a>
+</nav>
+</body></html>

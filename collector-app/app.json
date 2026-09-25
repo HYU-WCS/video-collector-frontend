@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "영상 수집",
+    "slug": "collector-app",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.team.collector",
+      "infoPlist": {
+        "NSCameraUsageDescription": "도로 영상을 촬영하기 위해 카메라를 사용합니다.",
+        "NSMicrophoneUsageDescription": "영상 촬영 시 사용됩니다.",
+        "NSLocationWhenInUseUsageDescription": "촬영 경로를 기록하기 위해 위치를 사용합니다.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "주행 중 촬영 경로를 끊김 없이 기록하기 위해 위치를 항상 사용합니다.",
+        "UIBackgroundModes": ["location"]
+      }
+    },
+    "android": {
+      "package": "com.team.collector",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-location",
+      "expo-video",
+      ["expo-screen-orientation", { "initialOrientation": "PORTRAIT_UP" }]
+    ]
+  }
+}

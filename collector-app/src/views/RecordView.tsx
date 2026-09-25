@@ -1,0 +1,129 @@
+import { useEffect, useRef, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { StatusBar } from 'expo-status-bar';
+import { useRecorder } from '@/controllers/useRecorder';
+import { useNearbyRoads } from '@/controllers/useCoverage';
+import { MiniMap } from '@/views/MapView';
+import { StatusColor } from '@/theme/colors';
+
+// 촬영 화면만 가로로 고정한다. 도로 폭을 넓게 담고, 모든 클립의 화면비를 통일하기 위해서다 (D17).
+// 회전을 따라가게 두면 세로·가로 클립이 섞여 검수와 데이터 품질이 들쭉날쭉해진다.
+export function RecordView({ navigation }: any) {
+  const [perm, requestPerm] = useCameraPermissions();
+  const cam = useRef<CameraView>(null);
+  const rec = useRecorder();
+  const nearby = useNearbyRoads(rec.position);
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
+  const top = Math.max(insets.top, 12);
+
+  useEffect(() => {
+    void ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    return () => { void ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP); };
+  }, []);
+
+  if (!perm?.granted) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Pressable onPress={requestPerm}><Text>카메라 권한 허용하기</Text></Pressable>
+      </View>
+    );
+  }
+
+  const onPress = async () => {
+    if (!rec.recording) {
+      setError(null);
+      rec.start();
+      try {
+        const video = await cam.current?.recordAsync();
+        if (video?.uri) setConfirming(video.uri);
+      } catch (e: any) {
+        // 녹화가 시작조차 안 되면 recording 상태가 남아 버튼이 멈춘다. 되돌리고 이유를 보여준다.
+        await rec.finish('', false);
+        setError(e?.message ?? '녹화를 시작할 수 없습니다');
+      }
+    } else {
+      cam.current?.stopRecording();
+    }
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
+      {/* 소리는 담지 않는다 — 도로 데이터에 불필요하고 행인 대화가 녹음된다. 마이크 권한도 필요 없어진다. */}
+      <CameraView ref={cam} style={{ flex: 1 }} facing="back" mode="video" mute />
+      <StatusBar hidden />
+
+      {/* 녹화 중엔 나가지 못하게 숨긴다. 끊으려면 정지 → 폐기. */}
+      {!rec.recording && (
+        <Pressable onPress={() => navigation.goBack()} hitSlop={12}
+          style={{ position: 'absolute', top, left: insets.left + 16, backgroundColor: '#000A', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 6 }}>
+          <Text style={{ color: '#fff' }}>닫기</Text>
+        </Pressable>
+      )}
+
+      {/* 상단 — 거리를 주로 보여준다. 100m 단위로 끊어 찍기 때문. */}
+      <View style={{ position: 'absolute', top, alignSelf: 'center', backgroundColor: '#000A', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 6 }}>
+        <Text style={{ color: '#fff' }}>
+          {rec.recording ? `${fmt(rec.elapsed)} · ` : ''}{Math.round(rec.distance)}m / 100m
+        </Text>
+        {__DEV__ && (
+          <Text style={{ color: '#FFD', fontSize: 11, textAlign: 'center' }}>
+            [진단] GPS 수신 {rec.diag.fixes}회 · 마지막 {rec.diag.lastFixAgo ?? '-'}초 전 · ±{Math.round(rec.accuracy ?? 0)}m · 재구독 {rec.diag.resubs}회
+          </Text>
+        )}
+      </View>
+
+      {/* GPS는 문제 있을 때만 드러낸다 */}
+      {rec.gps !== 'good' && (
+        <View style={{ position: 'absolute', top, right: insets.right + 16, backgroundColor: '#000A', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5 }}>
+          <Text style={{ color: rec.gps === 'weak' ? StatusColor.pending : StatusColor.rejected, fontSize: 12 }}>
+            {rec.gps === 'weak' ? `GPS ${Math.round(rec.accuracy ?? 0)}m` : 'GPS 없음'}
+          </Text>
+        </View>
+      )}
+
+      {error && (
+        <View style={{ position: 'absolute', top: top + 40, alignSelf: 'center', maxWidth: 480, backgroundColor: '#000C', borderRadius: 8, padding: 10 }}>
+          <Text style={{ color: StatusColor.rejected, fontSize: 13 }}>{error}</Text>
+        </View>
+      )}
+
+      {/* 좌하단 미니맵 — 첫 위치가 잡힌 뒤에만 뜬다 */}
+      {rec.position && (
+        <View style={{ position: 'absolute', left: insets.left + 16, bottom: Math.max(insets.bottom, 16) }}>
+          <MiniMap roads={nearby} position={rec.position} trail={rec.trail} />
+        </View>
+      )}
+
+      <Pressable onPress={onPress} disabled={!rec.canRecord && !rec.recording}
+        // 가로로 쥐었을 때 오른손 엄지 자리 — 우측 중앙
+        style={{ position: 'absolute', right: insets.right + 24, top: '50%', marginTop: -36, width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#fff',
+                 backgroundColor: rec.recording ? StatusColor.rejected : 'transparent', opacity: rec.canRecord || rec.recording ? 1 : 0.4 }} />
+
+      {confirming && (
+        <ConfirmSheet
+          onSave={async () => { await rec.finish(confirming, true); setConfirming(null); navigation.goBack(); }}
+          onRetake={async () => { await rec.finish(confirming, false); setConfirming(null); }}
+          onDiscard={async () => { await rec.finish(confirming, false); setConfirming(null); navigation.goBack(); }}
+        />
+      )}
+    </View>
+  );
+}
+
+function ConfirmSheet({ onSave, onRetake, onDiscard }: Record<string, () => void>) {
+  return (
+    <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 16, borderTopRightRadius: 16, gap: 8 }}>
+      <Text style={{ fontSize: 16, marginBottom: 8 }}>촬영을 마칠까요?</Text>
+      <Pressable onPress={onSave}><Text style={{ padding: 12, textAlign: 'center' }}>저장</Text></Pressable>
+      <Pressable onPress={onRetake}><Text style={{ padding: 12, textAlign: 'center' }}>다시 찍기</Text></Pressable>
+      <Pressable onPress={onDiscard}><Text style={{ padding: 12, textAlign: 'center', color: StatusColor.rejected }}>폐기</Text></Pressable>
+    </View>
+  );
+}
+
+const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>영상수집 - Road Collector</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Public Sans & Noto Sans KR -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#FFFFFF',
+              surface: '#F5F5F3',
+              border: '#E3E2DD',
+              text: '#1C1C1A',
+              muted: '#6B6A65',
+              accent: '#2B6CB0',
+              statusNone: '#888780',
+              statusPending: '#EF9F27',
+              statusAccepted: '#97C459',
+              statusRejected: '#E24B4A',
+            }
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["'Noto Sans KR'", "Public Sans", "sans-serif"],
+            display: ["'Noto Sans KR'", "Public Sans", "sans-serif"],
+            body: ["'Noto Sans KR'", "Public Sans", "sans-serif"],
+            label: ["'Noto Sans KR'", "Public Sans", "sans-serif"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      background-color: #FFFFFF;
+      color: #1C1C1A;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Utilitarian touch feedback without shadows */
+    .touch-press:active {
+      background-color: #EBEBE8 !important;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-white text-[#1C1C1A] min-h-screen flex flex-col justify-between antialiased selection:bg-[#2B6CB0] selection:text-white">
+<!-- Top App Bar (Shared Component Contract) -->
+<header class="flex justify-between items-center w-full px-4 h-14 fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#E3E2DD]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#1C1C1A] text-[24px]">videocam</span>
+<h1 class="font-headline text-[17px] font-medium text-[#1C1C1A] tracking-tight">영상수집</h1>
+</div>
+<button aria-label="설정" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[#F5F5F3] active:opacity-80 transition-colors" type="button">
+<span class="material-symbols-outlined text-[#1C1C1A] text-[22px]">settings</span>
+</button>
+</header>
+<!-- Main Work Canvas -->
+<main class="w-full max-w-md mx-auto pt-16 pb-20 px-5 flex-1 flex flex-col gap-9">
+<!-- 2. Summary Card: Utilitarian high-contrast stats container -->
+<section class="mt-6 bg-[#F5F5F3] border border-[#E3E2DD] rounded-xl p-5 flex flex-col gap-4">
+<div class="flex items-baseline justify-between">
+<h2 class="text-[19px] font-medium text-[#1C1C1A] tracking-tight">
+          오동현님, 18.4km 촬영했어요!
+        </h2>
+</div>
+<div class="h-px bg-[#E3E2DD] w-full"></div>
+<!-- Stacked Metric Breakdown -->
+<div class="grid grid-cols-2 gap-3 text-[14px]">
+<div class="flex items-center justify-between bg-white px-3 py-2.5 rounded-lg border border-[#E3E2DD]">
+<span class="text-[#6B6A65] text-[13px] font-medium flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#97C459]"></span>확정
+          </span>
+<span class="font-medium text-[#1C1C1A] text-[15px] tabular-nums">8.1km</span>
+</div>
+<div class="flex items-center justify-between bg-white px-3 py-2.5 rounded-lg border border-[#E3E2DD]">
+<span class="text-[#6B6A65] text-[13px] font-medium flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#EF9F27]"></span>검수중
+          </span>
+<span class="font-medium text-[#1C1C1A] text-[15px] tabular-nums">4.3km</span>
+</div>
+</div>
+</section>
+<!-- 3. 알림 — 조건부. 반려 알림(읽으면 사라짐)과 업로드 대기 칩. 둘 다 없으면 컨테이너째 사라진다 -->
+<div id="alerts" class="flex flex-col gap-3">
+<!-- 반려 알림: 과제가 아니라 1회성 알림 (D14). 탭 → 앨범 반려 필터, 탭하거나 닫으면 다시 뜨지 않는다 -->
+<div data-alert="reject" class="flex items-start gap-3 pl-4 pr-2 py-3 rounded-lg bg-[#FDF2F2] border border-[#E24B4A]/30">
+<span class="material-symbols-outlined text-[20px] text-[#E24B4A] mt-0.5">notifications</span>
+<button class="flex-1 min-w-0 text-left active:opacity-75" type="button">
+<span class="block text-[14px] font-medium leading-tight text-[#C72828]">내 영상 2건이 반려됐어요</span>
+<span class="block text-[13px] leading-snug text-[#6B6A65] mt-1 truncate">사유: GPS 이상 · 화질 불량</span>
+</button>
+<button aria-label="알림 닫기" class="w-10 h-10 -my-1.5 flex items-center justify-center rounded-lg text-[#6B6A65] active:bg-[#F8E1E1]" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex gap-3">
+<button data-alert="upload" class="flex-1 min-w-0 flex items-center justify-between gap-2 px-4 py-3.5 rounded-lg bg-[#FFF7E8] border border-[#EF9F27]/30 text-[#B87009] active:opacity-75 transition-opacity text-left" type="button">
+<span class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-[20px] text-[#EF9F27]">upload</span>
+<span class="text-[14px] font-medium leading-tight truncate">업로드 대기</span>
+</span>
+<span class="text-[15px] font-medium leading-tight tabular-nums shrink-0">3건</span>
+</button>
+</div>
+</div>
+<script>
+// 프로토타입용: ?alerts=both|upload|reject|none 으로 상태 전환
+(function(){var q=window.__alerts||new URLSearchParams(location.search).get("alerts")||"both";var box=document.getElementById("alerts");
+if(q==="none"){box.remove();return;}
+if(q==="upload"||q==="reject"){box.querySelectorAll("[data-alert]").forEach(function(b){if(b.dataset.alert!==q)b.remove();});}})();
+</script>
+<!-- 4. Two Large Square Quick-Action Tiles -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Left Tile: 지도 -->
+<button class="aspect-[1/1] bg-white border border-[#E3E2DD] rounded-xl p-4 flex flex-col justify-between text-left touch-press transition-colors" type="button">
+<div>
+<span class="text-[17px] font-medium text-[#1C1C1A] block leading-snug">지도</span>
+<span class="text-[12px] text-[#6B6A65] block mt-0.5 leading-tight">얼마나 했는지 보기</span>
+</div>
+<!-- Styled Road Network Vector Preview (Status Color-Coded Segments) -->
+<div class="w-full h-20 bg-[#F5F5F3] rounded-lg border border-[#E3E2DD] relative overflow-hidden flex items-center justify-center p-2">
+<svg class="w-full h-full" fill="none" viewbox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+<!-- Road Background Grid -->
+<path d="M5 25H115" stroke="#E3E2DD" stroke-linecap="round" stroke-width="6"></path>
+<path d="M25 5V65" stroke="#E3E2DD" stroke-linecap="round" stroke-width="6"></path>
+<path d="M85 5V65" stroke="#E3E2DD" stroke-linecap="round" stroke-width="6"></path>
+<path d="M15 55Q60 45 105 55" stroke="#E3E2DD" stroke-linecap="round" stroke-width="6"></path>
+<!-- Road Segments Color Coded -->
+<!-- Approved segment (Green: #97C459) -->
+<path d="M5 25H55" stroke="#97C459" stroke-linecap="round" stroke-width="4.5"></path>
+<path d="M25 5V40" stroke="#97C459" stroke-linecap="round" stroke-width="4.5"></path>
+<!-- Pending review segment (Amber: #EF9F27) -->
+<path d="M55 25H115" stroke="#EF9F27" stroke-linecap="round" stroke-width="4.5"></path>
+<path d="M85 25V55" stroke="#EF9F27" stroke-linecap="round" stroke-width="4.5"></path>
+<!-- Uncaptured / Not captured (Gray: #888780) -->
+<path d="M15 55Q60 45 105 55" stroke="#888780" stroke-dasharray="3 3" stroke-linecap="round" stroke-width="4"></path>
+<!-- Field Worker Current Position Dot (#2B6CB0) -->
+<circle cx="55" cy="25" fill="#2B6CB0" r="4.5"></circle>
+<circle cx="55" cy="25" r="7.5" stroke="#2B6CB0" stroke-opacity="0.4" stroke-width="1.5"></circle>
+</svg>
+<div class="absolute bottom-1 right-1.5 bg-white/90 px-1 py-0.5 rounded text-[9px] font-medium text-[#6B6A65] border border-[#E3E2DD]">
+            현장 지도
+          </div>
+</div>
+</button>
+<!-- Right Tile: 촬영 (Primary Action) -->
+<button class="aspect-[1/1] bg-[#2B6CB0] border border-[#2B6CB0] rounded-xl p-4 flex flex-col justify-between text-left active:opacity-90 transition-opacity text-white" type="button">
+<div>
+<span class="text-[17px] font-medium text-white block leading-snug">촬영</span>
+<span class="text-[12px] text-white/80 block mt-0.5 leading-tight">영상 수집</span>
+</div>
+<div class="flex items-center justify-center w-full h-20 bg-white/10 rounded-lg border border-white/20">
+<div class="w-13 h-13 rounded-full bg-white flex items-center justify-center text-[#2B6CB0]">
+<span class="material-symbols-outlined text-[32px] text-[#2B6CB0]" style="font-variation-settings: 'FILL' 1;">videocam</span>
+</div>
+</div>
+</button>
+</div>
+<!-- 5. Wide Horizontal Tile: 앨범 리스트 -->
+<button class="w-full bg-white border border-[#E3E2DD] rounded-xl p-4 flex items-center justify-between text-left touch-press transition-colors" type="button">
+<div class="flex flex-col">
+<span class="text-[16px] font-medium text-[#1C1C1A] leading-snug">앨범 리스트</span>
+<span class="text-[13px] text-[#6B6A65] mt-0.5 leading-tight">찍은 데이터 확인</span>
+<div class="flex items-center gap-2 mt-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#F5F5F3] text-[#1C1C1A] border border-[#E3E2DD]">
+            오늘 14개 클립
+          </span>
+<span class="text-[11px] text-[#888780]">최근 저장: 14:22</span>
+</div>
+</div>
+<!-- Map preview thumbnail on the right edge -->
+<div class="w-24 h-18 bg-[#F5F5F3] border border-[#E3E2DD] rounded-lg p-1.5 flex flex-col justify-between relative overflow-hidden flex-shrink-0">
+<svg class="w-full h-full" fill="none" viewbox="0 0 80 50">
+<rect fill="#F0EFEA" height="50" rx="3" width="80"></rect>
+<path d="M0 18H80" stroke="#FFFFFF" stroke-width="4"></path>
+<path d="M22 0V50" stroke="#FFFFFF" stroke-width="4"></path>
+<path d="M58 0V50" stroke="#FFFFFF" stroke-width="3"></path>
+<path d="M10 40L70 10" stroke="#97C459" stroke-linecap="round" stroke-width="3"></path>
+<circle cx="40" cy="25" fill="#EF9F27" r="3"></circle>
+<circle cx="22" cy="18" fill="#2B6CB0" r="3"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 text-[9px] bg-white/90 border border-[#E3E2DD] px-1 rounded text-[#1C1C1A]">목록</span>
+</div>
+</button>
+<!-- 6. Bottom Status Indicator -->
+<div class="mt-auto py-2 flex items-center justify-center gap-1.5 text-center">
+<span class="material-symbols-outlined text-[14px] text-[#6B6A65]">sd_card</span>
+<p class="text-[12px] text-[#6B6A65] font-normal tracking-tight">
+        저장공간 <span class="font-medium text-[#1C1C1A]">12.4GB</span> 남음
+      </p>
+</div>
+</main>
+<nav aria-label="메인 내비게이션" class="fixed bottom-0 left-0 right-0 z-50 w-full flex justify-around items-center h-16 bg-white border-t border-[#E3E2DD] px-2 ">
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#2B6CB0] font-medium gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[12px] leading-none">홈</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">map</span>
+<span class="text-[12px] leading-none">지도</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">videocam</span>
+<span class="text-[12px] leading-none">촬영</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">photo_library</span>
+<span class="text-[12px] leading-none">앨범</span>
+</a>
+</nav>
+</body></html>

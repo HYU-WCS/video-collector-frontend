@@ -1,0 +1,27 @@
+# 의존성·빌드 산출물
+node_modules/
+.expo/
+dist/
+*.log
+.DS_Store
+
+# 비밀정보 — Stitch API 키가 들어 있다
+.mcp.json
+
+# 개인 로컬 설정
+.claude/settings.local.json
+
+# AI 도구 설치 폴더 (프로젝트 코드 아님)
+.agent/
+.agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.kiro/
+.opencode/
+.impeccable/
+
+# 백업·출처 불명 파일
+*.bak
+moit_mockups (1).html

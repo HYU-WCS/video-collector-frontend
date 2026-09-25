@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>업로드 - 영상수집</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&amp;family=Public+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            surface: "#F5F5F3",
+            border: "#E3E2DD",
+            primary: "#1C1C1A",
+            muted: "#6B6A65",
+            accent: "#2B6CB0",
+            status: {
+              none: "#888780",
+              pending: "#EF9F27",
+              accepted: "#97C459",
+              rejected: "#E24B4A"
+            }
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            body: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            display: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            label: ["Noto Sans KR", "Public Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    html { height: 100%; }
+    body {
+      font-family: 'Noto Sans KR', 'Public Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#F5F5F3] text-[#1C1C1A] min-h-screen flex justify-center items-start antialiased selection:bg-blue-100">
+<!-- Mobile Screen Container (390px base viewport simulation) -->
+<main class="w-full max-w-[420px] bg-white min-h-screen flex flex-col relative border-x border-[#E3E2DD] shadow-none">
+<!-- Top Bar (Docked at top with #E3E2DD bottom border, 56px height) -->
+<header class="sticky top-0 z-40 bg-white border-b border-[#E3E2DD] h-14 px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button aria-label="뒤로가기" class="w-10 h-10 -ml-2 rounded-lg flex items-center justify-center text-[#1C1C1A] hover:bg-[#F5F5F3] active:opacity-75 transition-colors" type="button">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<h1 class="text-[17px] font-medium text-[#1C1C1A] tracking-tight">업로드</h1>
+</div>
+<div class="text-[13px] font-normal text-[#6B6A65] tracking-tight">
+        3건 · 420MB
+      </div>
+</header>
+<!-- Subheader / Status Info Strip -->
+<section class="bg-[#F5F5F3] border-b border-[#E3E2DD] px-4 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-[#2B6CB0]">wifi</span>
+<span class="text-[12px] font-medium text-[#2B6CB0]">Wi-Fi 연결됨</span>
+</div>
+<span class="text-[11px] text-[#6B6A65] font-normal">남은 용량 280MB</span>
+</section>
+<!-- Upload Queue List -->
+<div class="flex-1 overflow-y-auto divide-y divide-[#E3E2DD] pb-24">
+<!-- Row 1: Uploading (62%) -->
+<article class="p-4 bg-white flex flex-col gap-3">
+<div class="flex items-center gap-3">
+<!-- Video Thumbnail -->
+<div class="relative w-20 h-14 bg-[#1C1C1A] rounded-[6px] overflow-hidden flex-shrink-0 border border-[#E3E2DD]">
+<img class="w-full h-full object-cover opacity-90" data-alt="A driver perspective forward dashcam capture showcasing a paved expressway with clearly marked lanes, surrounding green mountain landscape, and distant highway traffic under bright clear daylight conditions." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWw9NUV2HQAX8G36lsDXSP9Y6RqK9v37bDA5FxjdxC8L7rxKjtnUDXnwAoQW0xW3IaW0ga3IHOyG1EAat32jSeoGGBZLXxdp7Bw9goz64fRh6zB1VO_xOVofomsMnGlJrD1t7P9q0o8eAKE-6FMBbYH1iGAkl8IzAznX6W11g741oog3sv-y_dEM1ybECBPK44QoETErO-PD_z_7iRH1WUMG0KErTV1xgljrFCKntHEWlo2MjPStuQt57cePo6UhhtUKx-4pncJ-w"/>
+<div class="absolute bottom-1 right-1 bg-black/75 text-white text-[10px] font-medium px-1 py-0.2 rounded leading-tight">
+              00:45
+            </div>
+<div class="absolute top-1 left-1 bg-[#2B6CB0] w-1.5 h-1.5 rounded-full ring-2 ring-white"></div>
+</div>
+<!-- File & Meta info -->
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<span class="text-[14px] font-medium text-[#1C1C1A] truncate">clip_1043.mp4</span>
+<span class="text-[12px] font-medium text-[#2B6CB0] flex-shrink-0">업로드 중 62%</span>
+</div>
+<p class="text-[12px] text-[#6B6A65] mt-0.5">140MB · 26.09.20 14:02</p>
+<div class="flex items-center gap-1.5 mt-1 text-[11px] text-[#6B6A65]">
+<span>성북로 12길</span>
+<span>·</span>
+<span>3.4 MB/s</span>
+</div>
+</div>
+</div>
+<!-- Integrated Progress Bar -->
+<div class="w-full space-y-1">
+<div class="w-full bg-[#E2E8F0] h-1.5 rounded-full overflow-hidden">
+<div class="bg-[#2B6CB0] h-full rounded-full transition-all duration-300" style="width: 62%;"></div>
+</div>
+<div class="flex justify-between items-center text-[11px] text-[#6B6A65]">
+<span>86.8MB 전송됨</span>
+<span>약 15초 남음</span>
+</div>
+</div>
+</article>
+<!-- Row 2: Waiting -->
+<article class="p-4 bg-white flex items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<!-- Video Thumbnail -->
+<div class="relative w-20 h-14 bg-[#1C1C1A] rounded-[6px] overflow-hidden flex-shrink-0 border border-[#E3E2DD]">
+<img class="w-full h-full object-cover opacity-85" data-alt="A clean front windshield camera view capturing a multi-lane open asphalt road flanked by steel guardrails and forested green hills under daylight with a delivery vehicle ahead." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWw9NUV2HQAX8G36lsDXSP9Y6RqK9v37bDA5FxjdxC8L7rxKjtnUDXnwAoQW0xW3IaW0ga3IHOyG1EAat32jSeoGGBZLXxdp7Bw9goz64fRh6zB1VO_xOVofomsMnGlJrD1t7P9q0o8eAKE-6FMBbYH1iGAkl8IzAznX6W11g741oog3sv-y_dEM1ybECBPK44QoETErO-PD_z_7iRH1WUMG0KErTV1xgljrFCKntHEWlo2MjPStuQt57cePo6UhhtUKx-4pncJ-w"/>
+<div class="absolute bottom-1 right-1 bg-black/75 text-white text-[10px] font-medium px-1 py-0.2 rounded leading-tight">
+              00:45
+            </div>
+</div>
+<!-- File info -->
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="text-[14px] font-medium text-[#1C1C1A] truncate">clip_1044.mp4</span>
+</div>
+<p class="text-[12px] text-[#6B6A65] mt-0.5">140MB · 26.09.20 14:03</p>
+<p class="text-[11px] text-[#888780] mt-0.5">대기 순서: 1번째</p>
+</div>
+</div>
+<!-- Status badge -->
+<div class="flex-shrink-0">
+<span class="inline-flex items-center px-2 py-1 rounded bg-[#F5F5F3] border border-[#E3E2DD] text-[#6B6A65] text-[12px] font-medium">
+            대기 중
+          </span>
+</div>
+</article>
+<!-- Row 3: Failed / Network Error -->
+<article class="p-4 bg-white flex items-start justify-between gap-3">
+<div class="flex items-start gap-3 min-w-0">
+<!-- Video Thumbnail with error indicator -->
+<div class="relative w-20 h-14 bg-[#1C1C1A] rounded-[6px] overflow-hidden flex-shrink-0 border border-[#E24B4A]/40">
+<img class="w-full h-full object-cover opacity-75" data-alt="Forward road recording taken from a vehicle cabin showing clear highway lanes stretching toward mountains under a bright sunny sky with occasional cars in adjacent lanes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWw9NUV2HQAX8G36lsDXSP9Y6RqK9v37bDA5FxjdxC8L7rxKjtnUDXnwAoQW0xW3IaW0ga3IHOyG1EAat32jSeoGGBZLXxdp7Bw9goz64fRh6zB1VO_xOVofomsMnGlJrD1t7P9q0o8eAKE-6FMBbYH1iGAkl8IzAznX6W11g741oog3sv-y_dEM1ybECBPK44QoETErO-PD_z_7iRH1WUMG0KErTV1xgljrFCKntHEWlo2MjPStuQt57cePo6UhhtUKx-4pncJ-w"/>
+<div class="absolute bottom-1 right-1 bg-black/75 text-white text-[10px] font-medium px-1 py-0.2 rounded leading-tight">
+              00:45
+            </div>
+<div class="absolute inset-0 bg-[#E24B4A]/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#E24B4A] text-[20px]">error_outline</span>
+</div>
+</div>
+<!-- File & Error details -->
+<div class="min-w-0">
+<span class="text-[14px] font-medium text-[#1C1C1A] truncate block">clip_1045.mp4</span>
+<p class="text-[12px] text-[#6B6A65] mt-0.5">140MB · 26.09.20 14:04</p>
+<div class="flex items-center gap-1 mt-1 text-[12px] text-[#E24B4A] font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-[#E24B4A]"></span>
+<span>실패 · 네트워크 오류</span>
+</div>
+</div>
+</div>
+<!-- Retry Action Button -->
+<button class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[6px] border border-[#E3E2DD] bg-white hover:bg-[#F5F5F3] active:bg-[#ECEBE7] text-[12px] font-medium text-[#1C1C1A] transition-colors mt-0.5" type="button">
+<span class="material-symbols-outlined text-[16px] text-[#2B6CB0]">refresh</span>
+<span>재시도</span>
+</button>
+</article>
+</div>
+<!-- Docked Bottom Button Area (No BottomNavBar as per requirement) -->
+<footer class="fixed md:sticky bottom-0 left-0 right-0 max-w-[420px] mx-auto z-40 bg-white border-t border-[#E3E2DD] p-4">
+<div class="grid grid-cols-2 gap-3">
+<!-- Button 1: 전체 재시도 -->
+<button class="h-[48px] border border-[#2B6CB0] bg-white hover:bg-[#EBF2FA]/50 active:bg-blue-100/60 text-[#2B6CB0] text-[14px] font-medium rounded-lg flex items-center justify-center gap-1.5 transition-colors focus:outline-none" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+<span>전체 재시도</span>
+</button>
+<!-- Button 2: 전체 취소 -->
+<button class="h-[48px] border border-[#D1D5DB] bg-white hover:bg-[#F5F5F3] active:bg-[#ECEBE7] text-[#6B6A65] text-[14px] font-medium rounded-lg flex items-center justify-center gap-1.5 transition-colors focus:outline-none" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+<span>전체 취소</span>
+</button>
+</div>
+</footer>
+</main>
+</body></html>

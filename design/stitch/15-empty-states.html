@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상태별 화면 모음 (비어 있음 · 오프라인 · 지도 로딩)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <style>
+    html { height: 100%; }
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body {
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: #ECEBE8;
+      color: #1C1C1A;
+      -webkit-font-smoothing: antialiased;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-custom {
+      animation: spin 0.9s linear infinite;
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center justify-center min-h-screen">
+
+  <div class="w-full max-w-[390px] min-w-0 flex flex-col gap-10">
+
+    <!-- FRAME 1: 앨범 비어 있음 -->
+    <div class="flex flex-col">
+      <!-- Gray caption above -->
+      <div class="text-[13px] font-medium text-[#71716A] mb-2 px-1 tracking-tight flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#9E9D98]"></span>
+        앨범 비어 있음
+      </div>
+
+      <!-- Phone Frame -->
+      <div class="w-full h-[620px] bg-white rounded-2xl border border-[#DCDAD5] flex flex-col overflow-hidden relative select-none">
+<nav class="absolute bottom-0 left-0 right-0 h-14 bg-white border-t border-[#E3E2DD] flex justify-around items-center px-2 z-40"><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">home</span><span class="text-[11px] leading-none">홈</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">map</span><span class="text-[11px] leading-none">지도</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">videocam</span><span class="text-[11px] leading-none">촬영</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#2B6CB0] font-medium gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">photo_library</span><span class="text-[11px] leading-none">앨범</span></a></nav>
+        
+        <!-- Top App Bar -->
+        <div class="h-14 bg-white border-b border-[#E3E2DD] px-4 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="text-[17px] font-medium text-[#1C1C1A]">앨범</span>
+          </div>
+          <span class="material-symbols-outlined text-[#6B6A65] text-[20px]">tune</span>
+        </div>
+
+        <!-- Filter tabs (Flat, matching existing album list) -->
+        <div class="px-4 py-3 border-b border-[#F0EFEA] flex items-center gap-1.5 shrink-0 bg-white">
+          <span class="px-3 py-1 rounded-full text-[12px] font-medium bg-[#1C1C1A] text-white">전체 0</span>
+          <span class="px-3 py-1 rounded-full text-[12px] font-medium bg-[#F2F1ED] text-[#6B6A65]">검수 대기</span>
+          <span class="px-3 py-1 rounded-full text-[12px] font-medium bg-[#F2F1ED] text-[#6B6A65]">반려</span>
+          <span class="px-3 py-1 rounded-full text-[12px] font-medium bg-[#F2F1ED] text-[#6B6A65]">업로드 실패</span>
+        </div>
+
+        <!-- Body: Empty State -->
+        <div class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <!-- Small outline camera icon in light gray -->
+          <div class="w-14 h-14 rounded-full bg-[#F5F5F3] flex items-center justify-center mb-3.5 border border-[#EBEAE5]">
+            <span class="material-symbols-outlined text-[#A3A29D] text-[28px]">photo_camera</span>
+          </div>
+          
+          <!-- Muted text -->
+          <p class="text-[15px] font-medium text-[#71706B] mb-5 tracking-tight">
+            아직 촬영한 영상이 없습니다
+          </p>
+
+          <!-- Secondary outlined button -->
+          <button class="h-10 px-5 rounded-lg border border-[#2B6CB0] text-[#2B6CB0] text-[14px] font-medium bg-white active:bg-[#EBF2FA] transition-colors flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px]">videocam</span>
+            촬영 시작하기
+          </button>
+        </div>
+
+        <!-- Compact device storage status bar at bottom (no nav bar) -->
+        <div class="py-2.5 px-4 bg-[#FAF9F5] border-t border-[#EAE8E3] flex items-center justify-between text-[11px] text-[#8C8B85]">
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">sd_card</span>
+            저장공간 12.4GB 남음
+          </span>
+          <span>현장단말 #04</span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- FRAME 2: 오프라인 -->
+    <div class="flex flex-col">
+      <!-- Gray caption above -->
+      <div class="text-[13px] font-medium text-[#71716A] mb-2 px-1 tracking-tight flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#EF9F27]"></span>
+        오프라인
+      </div>
+
+      <!-- Phone Frame -->
+      <div class="w-full h-[620px] bg-[#F7F6F2] rounded-2xl border border-[#DCDAD5] flex flex-col overflow-hidden relative select-none">
+<nav class="absolute bottom-0 left-0 right-0 h-14 bg-white border-t border-[#E3E2DD] flex justify-around items-center px-2 z-40"><a class="flex flex-col items-center justify-center min-w-[56px] text-[#2B6CB0] font-medium gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">home</span><span class="text-[11px] leading-none">홈</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">map</span><span class="text-[11px] leading-none">지도</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">videocam</span><span class="text-[11px] leading-none">촬영</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">photo_library</span><span class="text-[11px] leading-none">앨범</span></a></nav>
+        
+        <!-- Top App Bar -->
+        <div class="h-14 bg-white border-b border-[#E3E2DD] px-4 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#1C1C1A] text-[22px]">videocam</span>
+            <span class="text-[17px] font-medium text-[#1C1C1A]">영상수집</span>
+          </div>
+          <span class="material-symbols-outlined text-[#6B6A65] text-[20px]">settings</span>
+        </div>
+
+        <!-- Full-width amber #EF9F27-tinted strip pinned directly under top bar -->
+        <div class="bg-[#FFF6E7] border-b border-[#F6D090] px-4 py-2 flex items-center gap-2 shrink-0">
+          <span class="material-symbols-outlined text-[#EF9F27] text-[17px]">wifi_off</span>
+          <span class="text-[12px] font-medium text-[#92400E] tracking-tight">
+            오프라인 · 저장된 내용만 표시됩니다
+          </span>
+        </div>
+
+        <!-- Content below shown normally, not blocked -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3.5">
+          
+          <!-- Collector greeting & summary card -->
+          <div class="bg-white rounded-xl border border-[#E5E4DE] p-4">
+            <div class="text-[15px] font-medium text-[#1C1C1A] mb-3">
+              오동현님, 18.4km 촬영했어요!
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-[#F8F8F6] rounded-lg p-2.5 border border-[#ECEBE6]">
+                <div class="flex items-center gap-1 text-[11px] text-[#6B6A65] mb-0.5">
+                  <span class="w-2 h-2 rounded-full bg-[#16A34A]"></span>
+                  확정
+                </div>
+                <div class="text-[14px] font-medium text-[#1C1C1A]">8.1km</div>
+              </div>
+              <div class="bg-[#F8F8F6] rounded-lg p-2.5 border border-[#ECEBE6]">
+                <div class="flex items-center gap-1 text-[11px] text-[#6B6A65] mb-0.5">
+                  <span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>
+                  검수중
+                </div>
+                <div class="text-[14px] font-medium text-[#1C1C1A]">4.3km</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending queue banner alert -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="bg-[#FFFBEB] rounded-xl border border-[#FDE68A] p-3 flex flex-col justify-between">
+              <div class="flex items-center gap-1 text-[12px] font-medium text-[#92400E]">
+                <span class="material-symbols-outlined text-[15px]">upload</span>
+                업로드 대기
+              </div>
+              <div class="text-[16px] font-medium text-[#78350F] mt-1">3건 (로컬)</div>
+            </div>
+            <div class="bg-[#FEF2F2] rounded-xl border border-[#FECACA] p-3 flex flex-col justify-between">
+              <div class="flex items-center gap-1 text-[12px] font-medium text-[#991B1B]">
+                <span class="material-symbols-outlined text-[15px]">notifications</span>
+                반려 알림
+              </div>
+              <div class="text-[16px] font-medium text-[#991B1B] mt-1">2건</div>
+            </div>
+          </div>
+
+          <!-- Quick actions 2-column -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Map tile -->
+            <div class="bg-white rounded-xl border border-[#E5E4DE] p-3 flex flex-col justify-between h-[120px]">
+              <div>
+                <div class="text-[14px] font-medium text-[#1C1C1A]">지도</div>
+                <div class="text-[11px] text-[#71716A]">오프라인 캐시 보기</div>
+              </div>
+              <!-- Mini map graphic schematic -->
+              <div class="h-10 w-full bg-[#F3F2EE] rounded flex items-center justify-center relative overflow-hidden border border-[#E5E4DD]">
+                <div class="absolute w-full h-[3px] bg-[#D4D2C9]"></div>
+                <div class="absolute h-full w-[3px] bg-[#D4D2C9]"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#2B6CB0] border-2 border-white relative z-10"></div>
+              </div>
+            </div>
+
+            <!-- Record CTA tile -->
+            <div class="bg-[#2B6CB0] rounded-xl p-3 flex flex-col justify-between text-white h-[120px]">
+              <div>
+                <div class="text-[14px] font-medium">촬영</div>
+                <div class="text-[11px] text-blue-100">오프라인 영상 수집</div>
+              </div>
+              <div class="self-end">
+                <span class="material-symbols-outlined text-[32px] text-white">videocam</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer status bar (no bottom nav) -->
+        <div class="py-2.5 px-4 bg-white border-t border-[#EAE8E3] flex items-center justify-between text-[11px] text-[#8C8B85]">
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">sd_card</span>
+            저장공간 12.4GB 남음
+          </span>
+          <span class="text-[#EF9F27] font-medium">연결 후 앨범에서 업로드</span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- FRAME 3: 지도 로딩 -->
+    <div class="flex flex-col">
+      <!-- Gray caption above -->
+      <div class="text-[13px] font-medium text-[#71716A] mb-2 px-1 tracking-tight flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#2B6CB0]"></span>
+        지도 로딩
+      </div>
+
+      <!-- Phone Frame -->
+      <div class="w-full h-[620px] bg-[#F4F3EE] rounded-2xl border border-[#DCDAD5] flex flex-col overflow-hidden relative select-none">
+<nav class="absolute bottom-0 left-0 right-0 h-14 bg-white border-t border-[#E3E2DD] flex justify-around items-center px-2 z-40"><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">home</span><span class="text-[11px] leading-none">홈</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#2B6CB0] font-medium gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">map</span><span class="text-[11px] leading-none">지도</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">videocam</span><span class="text-[11px] leading-none">촬영</span></a><a class="flex flex-col items-center justify-center min-w-[56px] text-[#6B6A65] gap-0.5" href="#"><span class="material-symbols-outlined text-[22px]">photo_library</span><span class="text-[11px] leading-none">앨범</span></a></nav>
+        
+        <!-- Top App Bar -->
+        <div class="h-14 bg-white border-b border-[#E3E2DD] px-4 flex items-center justify-between shrink-0 z-20">
+          <div class="flex items-center gap-2">
+            <span class="text-[17px] font-medium text-[#1C1C1A]">지도</span>
+          </div>
+          <span class="text-[12px] font-medium px-2 py-0.5 rounded bg-[#EEF2F6] text-[#2B6CB0]">전체 42%</span>
+        </div>
+
+        <!-- Subheader filter bar -->
+        <div class="px-4 py-2 bg-white border-b border-[#ECEAE5] flex items-center gap-1.5 shrink-0 z-20">
+          <span class="px-3 py-0.5 rounded-full text-[11px] font-medium bg-[#1C1C1A] text-white">전체</span>
+          <span class="px-3 py-0.5 rounded-full text-[11px] font-medium bg-[#F2F1ED] text-[#71716A]">내 촬영</span>
+          <span class="px-3 py-0.5 rounded-full text-[11px] font-medium bg-[#F2F1ED] text-[#71716A]">반려</span>
+        </div>
+
+        <!-- Map Area with flat light gray placeholder lines -->
+        <div class="flex-1 relative overflow-hidden bg-[#ECEBE4]">
+          
+          <!-- Small white pill at top center reading "불러오는 중" with tiny spinner (Non-blocking) -->
+          <div class="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-[#D8D6CE] text-[12px] font-medium text-[#1C1C1A]">
+            <svg class="w-3.5 h-3.5 animate-spin-custom text-[#2B6CB0]" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+              <path class="opacity-85" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"></path>
+            </svg>
+            <span>불러오는 중</span>
+          </div>
+
+          <!-- Flat Placeholder Map Geometry (Blocks and Gray Lines) -->
+          <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="dot-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1" fill="#E0DFD8" />
+              </pattern>
+            </defs>
+            
+            <!-- Map background grid pattern -->
+            <rect width="100%" height="100%" fill="url(#dot-grid)" />
+
+            <!-- City block buildings (Flat muted fills) -->
+            <rect x="24" y="24" width="76" height="90" rx="4" fill="#E2E0D8" />
+            <rect x="124" y="24" width="130" height="70" rx="4" fill="#E2E0D8" />
+            <rect x="278" y="24" width="90" height="110" rx="4" fill="#E2E0D8" />
+
+            <rect x="24" y="140" width="76" height="110" rx="4" fill="#E2E0D8" />
+            <rect x="124" y="118" width="130" height="140" rx="4" fill="#E2E0D8" />
+            <rect x="278" y="156" width="90" height="130" rx="4" fill="#E2E0D8" />
+
+            <rect x="24" y="274" width="76" height="120" rx="4" fill="#E2E0D8" />
+            <rect x="124" y="282" width="130" height="110" rx="4" fill="#E2E0D8" />
+            <rect x="278" y="310" width="90" height="100" rx="4" fill="#E2E0D8" />
+
+            <!-- Placeholder road network (Flat light gray lines) -->
+            <!-- Vertical roads -->
+            <line x1="112" y1="0" x2="112" y2="100%" stroke="#CBC8BD" stroke-width="14" stroke-linecap="square" />
+            <line x1="266" y1="0" x2="266" y2="100%" stroke="#CBC8BD" stroke-width="14" stroke-linecap="square" />
+            
+            <!-- Horizontal roads -->
+            <line x1="0" y1="106" x2="100%" y2="106" stroke="#CBC8BD" stroke-width="14" stroke-linecap="square" />
+            <line x1="0" y1="268" x2="100%" y2="268" stroke="#CBC8BD" stroke-width="14" stroke-linecap="square" />
+            
+            <!-- Diagonal connector line (placeholder) -->
+            <line x1="112" y1="268" x2="266" y2="400" stroke="#CBC8BD" stroke-width="10" stroke-linecap="square" />
+
+            <!-- Block landmark labels (light muted gray) -->
+            <text x="189" y="60" text-anchor="middle" font-size="10" fill="#99978F" font-family="Pretendard">성북초등학교</text>
+            <text x="62" y="70" text-anchor="middle" font-size="10" fill="#99978F" font-family="Pretendard">주민센터</text>
+            <text x="189" y="180" text-anchor="middle" font-size="10" fill="#99978F" font-family="Pretendard">공영주차장</text>
+            <text x="323" y="210" text-anchor="middle" font-size="10" fill="#99978F" font-family="Pretendard">치안센터</text>
+
+            <!-- Dimmed location pulsing beacon -->
+            <circle cx="112" cy="268" r="14" fill="#2B6CB0" fill-opacity="0.15" />
+            <circle cx="112" cy="268" r="5" fill="#2B6CB0" stroke="#FFFFFF" stroke-width="2" />
+          </svg>
+
+          <!-- Floating Map Controls (Top right & bottom right) -->
+          <div class="absolute right-3 top-3 flex flex-col gap-1.5 z-20">
+            <div class="w-8 h-8 rounded-lg bg-white border border-[#D5D3CC] flex items-center justify-center text-[#555]">
+              <span class="material-symbols-outlined text-[18px]">layers</span>
+            </div>
+            <div class="w-8 h-8 rounded-lg bg-white border border-[#D5D3CC] flex items-center justify-center text-[#2B6CB0]">
+              <span class="material-symbols-outlined text-[18px]">my_location</span>
+            </div>
+          </div>
+
+          <!-- Bottom floating legend pill -->
+          <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm border border-[#D8D6CE] rounded-lg px-2.5 py-1.5 text-[10px] text-[#6B6A65] flex items-center gap-3 z-20">
+            <span class="flex items-center gap-1">
+              <span class="w-2.5 h-1.5 bg-[#CBC8BD] rounded-sm"></span>
+              구간 불러오는 중
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Bottom status bar (no bottom nav) -->
+        <div class="py-2.5 px-4 bg-white border-t border-[#EAE8E3] flex items-center justify-between text-[11px] text-[#8C8B85] z-20">
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">explore</span>
+            성북구 관내 (9개 동)
+          </span>
+          <span class="text-[#2B6CB0]">GPS 정상</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

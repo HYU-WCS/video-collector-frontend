@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>영상수집 - 지도</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500&amp;family=Noto+Sans+KR:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#FFFFFF',
+              surface: '#F5F5F3',
+              border: '#E3E2DD',
+              primary: '#1C1C1A',
+              muted: '#6B6A65',
+              accent: '#2B6CB0',
+              statusNone: '#888780',
+              statusPending: '#EF9F27',
+              statusAccepted: '#97C459',
+              statusRejected: '#E24B4A'
+            }
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            display: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            body: ["Public Sans", "Noto Sans KR", "sans-serif"],
+            label: ["Public Sans", "Noto Sans KR", "sans-serif"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1;
+    }
+    @keyframes gps-pulse {
+      0% {
+        transform: scale(0.9);
+        opacity: 0.8;
+      }
+      70% {
+        transform: scale(2.4);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(2.4);
+        opacity: 0;
+      }
+    }
+    .gps-halo {
+      animation: gps-pulse 2.2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    }
+    /* Subtle touch active styling */
+    .touch-press:active {
+      opacity: 0.75;
+    }
+    /* Hide scrollbar for clean chip row */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#F5F5F3] font-body text-[#1C1C1A] antialiased flex justify-center selection:bg-[#2B6CB0]/20 min-h-screen">
+<!-- Mobile Viewport Container (390px Max Standard for Field Workers) -->
+<div class="relative w-full max-w-[420px] h-[884px] bg-white flex flex-col overflow-hidden">
+<!-- Top Area: Header & Sub-bar Filter Chips -->
+<header class="z-30 bg-white border-b border-[#E3E2DD] shrink-0">
+<!-- TopBar (56px) -->
+<div class="flex items-center justify-between px-3 h-14">
+<div class="flex items-center gap-1.5">
+<h1 class="font-headline text-[18px] font-medium tracking-tight text-[#1C1C1A]">지도</h1>
+</div>
+<div class="flex items-center gap-2">
+<!-- Total Coverage Pill Badge -->
+<div class="inline-flex items-center gap-1 bg-[#2B6CB0]/10 text-[#2B6CB0] font-medium text-[13px] px-3 py-1 rounded-full">
+<span class="text-[11px] text-[#2B6CB0]/80 font-normal">전체</span>
+<span>42%</span>
+</div>
+</div>
+</div>
+<!-- Horizontal Filter Chips Row -->
+<div class="flex items-center gap-2 px-3 pb-2.5 overflow-x-auto no-scrollbar">
+<!-- Selected Filter -->
+<button class="shrink-0 h-11 px-3.5 rounded-full bg-[#1C1C1A] text-white text-[13px] font-medium flex items-center justify-center transition-colors">
+          전체
+        </button>
+<!-- Unselected Filter 1 -->
+<button class="shrink-0 h-11 px-3.5 rounded-full bg-[#F5F5F3] border border-[#E3E2DD] text-[#1C1C1A] text-[13px] font-normal hover:bg-[#EAEAE6] transition-colors">
+          내 촬영
+        </button>
+<!-- Unselected Filter 2 -->
+<button class="shrink-0 h-11 px-3.5 rounded-full bg-[#F5F5F3] border border-[#E3E2DD] text-[#1C1C1A] text-[13px] font-normal hover:bg-[#EAEAE6] transition-colors">
+          반려
+        </button>
+<!-- Unselected Filter 3 -->
+</div>
+</header>
+<!-- Map Canvas Body -->
+<main class="relative flex-1 w-full h-full overflow-hidden bg-[#EAEAE6] select-none">
+<!-- Map Vector Layer (Street layout zoomed in close at clip level) -->
+<div class="absolute inset-0 w-full h-full">
+<svg class="w-full h-full" preserveaspectratio="xMidYMid slice" viewbox="0 0 420 620" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Street Arrow Markers for Clip Direction -->
+<marker id="arrow-pending" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="6" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#EF9F27"></path>
+</marker>
+<marker id="arrow-accepted" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="6" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#97C459"></path>
+</marker>
+<marker id="arrow-rejected" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="6" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#E24B4A"></path>
+</marker>
+<marker id="arrow-current" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="6" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2B6CB0"></path>
+</marker>
+</defs>
+<!-- 1. City Cadastral Blocks (Architectural Buildings & Urban parcels) -->
+<g fill="#F2F1ED" stroke="#DFDED8" stroke-width="1">
+<!-- Block 1: 성북로 북서 블록 -->
+<path d="M-20 -20 L 150 -20 L 140 110 L -20 100 Z"></path>
+<!-- Block 2: 성북초교 블록 -->
+<path d="M 180 -20 L 370 -20 L 360 95 L 175 105 Z" fill="#ECEBE5"></path>
+<!-- Block 3: 동소문로 북동 블록 -->
+<path d="M 395 -20 L 450 -20 L 450 140 L 390 120 Z"></path>
+<!-- Block 4: 성북동 중간 서측 블록 -->
+<path d="M -20 135 L 135 145 L 125 290 L -20 280 Z"></path>
+<!-- Block 5: 삼선교 서측 상업지구 -->
+<path d="M 170 140 L 345 130 L 335 285 L 160 295 Z"></path>
+<!-- Block 6: 성북주민센터 블록 -->
+<path d="M 380 150 L 450 165 L 450 310 L 370 295 Z" fill="#ECEBE5"></path>
+<!-- Block 7: 남서측 주택지구 -->
+<path d="M -20 315 L 115 325 L 90 490 L -20 480 Z"></path>
+<!-- Block 8: 중앙 남측 주거지구 -->
+<path d="M 150 330 L 320 320 L 305 480 L 140 495 Z"></path>
+<!-- Block 9: 동소문로 남동 블록 (한성대입구역 방면) -->
+<path d="M 360 330 L 450 345 L 450 510 L 345 490 Z"></path>
+<!-- Block 10: 최하단 잔여 블록 -->
+<path d="M -20 515 L 125 525 L 110 650 L -20 650 Z"></path>
+<path d="M 160 525 L 450 535 L 450 650 L 150 650 Z"></path>
+</g>
+<!-- 2. Facility Footprints & POI Ground Markers -->
+<g>
+<!-- 성북초등학교 운동장/부지 -->
+<rect fill="#E4E3DB" height="65" rx="4" stroke="#D5D4CC" stroke-width="1" width="125" x="205" y="15"></rect>
+<text fill="#6B6A65" font-family="'Noto Sans KR', sans-serif" font-size="11" font-weight="500" text-anchor="middle" x="267" y="48">성북초등학교</text>
+<text fill="#888780" font-family="'Noto Sans KR', sans-serif" font-size="9" text-anchor="middle" x="267" y="62">체육관 및 운동장</text>
+<!-- 성북동주민센터 -->
+<rect fill="#E4E3DB" height="75" rx="3" stroke="#D5D4CC" stroke-width="1" width="55" x="382" y="180"></rect>
+<text fill="#6B6A65" font-family="'Noto Sans KR', sans-serif" font-size="10" font-weight="500" text-anchor="middle" x="409" y="215">성북동</text>
+<text fill="#6B6A65" font-family="'Noto Sans KR', sans-serif" font-size="10" font-weight="500" text-anchor="middle" x="409" y="230">주민센터</text>
+<!-- 성북파출소 치안센터 -->
+<rect fill="#E4E3DB" height="48" rx="3" stroke="#D5D4CC" stroke-width="1" width="75" x="25" y="165"></rect>
+<text fill="#6B6A65" font-family="'Noto Sans KR', sans-serif" font-size="10" font-weight="500" text-anchor="middle" x="62" y="194">성북파출소</text>
+<!-- 공영주차장 -->
+<rect fill="#E4E3DB" height="42" rx="3" stroke="#D5D4CC" stroke-width="1" width="70" x="180" y="360"></rect>
+<text fill="#6B6A65" font-family="'Noto Sans KR', sans-serif" font-size="10" font-weight="500" text-anchor="middle" x="215" y="386">공영주차장</text>
+</g>
+<!-- 3. Base Road Network (Thick Gray Uncaptured Segments #888780) -->
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+<!-- Road Outer Borders -->
+<g stroke="#D4D3CC" stroke-width="17">
+<!-- 성북로 (주도로 Main Arterial - 북서 to 남동) -->
+<path d="M 160 -30 L 148 125 L 138 310 L 125 510 L 115 650"></path>
+<!-- 삼선교로 (가로 도로 1) -->
+<path d="M -30 120 L 148 125 L 360 110 L 450 105"></path>
+<!-- 동소문로 방면 (세로 도로 2) -->
+<path d="M 378 -30 L 368 110 L 352 305 L 330 500 L 320 650"></path>
+<!-- 성북로4길 (가로 도로 2) -->
+<path d="M -30 300 L 138 310 L 352 305 L 450 325"></path>
+<!-- 한성대역 연결로 (가로 도로 3) -->
+<path d="M -30 500 L 125 510 L 330 500 L 450 515"></path>
+</g>
+<!-- Base Gray Road Surface (미촬영 기본 베이스 로드 #888780) -->
+<g stroke="#888780" stroke-width="12">
+<path d="M 160 -30 L 148 125 L 138 310 L 125 510 L 115 650"></path>
+<path d="M -30 120 L 148 125 L 360 110 L 450 105"></path>
+<path d="M 378 -30 L 368 110 L 352 305 L 330 500 L 320 650"></path>
+<path d="M -30 300 L 138 310 L 352 305 L 450 325"></path>
+<path d="M -30 500 L 125 510 L 330 500 L 450 515"></path>
+</g>
+</g>
+<!-- 4. Street Name Road Labels -->
+<g fill="#FFFFFF" font-family="'Noto Sans KR', sans-serif" font-size="9" font-weight="500">
+<text fill="#FFFFFF" opacity="0.95" text-anchor="middle" transform="rotate(84 142 22)" x="142" y="22">성북로</text>
+<text fill="#FFFFFF" opacity="0.95" text-anchor="middle" transform="rotate(86 133 215)" x="133" y="215">성북로</text>
+<text fill="#FFFFFF" opacity="0.95" text-anchor="middle" transform="rotate(86 120 420)" x="120" y="420">성북로</text>
+<text fill="#FFFFFF" opacity="0.9" text-anchor="middle" x="50" y="116">삼선교로1길</text>
+<text fill="#FFFFFF" opacity="0.9" text-anchor="middle" x="250" y="106">삼선교로</text>
+<text fill="#FFFFFF" opacity="0.9" text-anchor="middle" x="50" y="296">성북로4길</text>
+<text fill="#FFFFFF" opacity="0.9" text-anchor="middle" x="245" y="301">동소문로10길</text>
+<text fill="#FFFFFF" opacity="0.9" text-anchor="middle" transform="rotate(85 354 215)" x="354" y="215">동소문로</text>
+<text fill="#555" font-size="10" font-weight="500" text-anchor="middle" x="385" y="525">한성대입구역 방면 →</text>
+</g>
+<!-- 5. Recorded Video Clips (Short one-block segments with gaps, origin dot & direction arrow) -->
+<g stroke-linecap="round" stroke-linejoin="round">
+<!-- CLIP 1: 삼선교로 서측 (검수완료 #97C459) 방향: 동->서 -->
+<path d="M 125 124 L 20 121" marker-end="url(#arrow-accepted)" stroke="#97C459" stroke-width="7"></path>
+<circle cx="125" cy="124" fill="#FFFFFF" r="4.5" stroke="#97C459" stroke-width="2.5"></circle>
+<!-- CLIP 2: 삼선교로 중앙 (촬영완료·검수전 #EF9F27) 방향: 서->동 -->
+<path d="M 165 123 L 335 112" marker-end="url(#arrow-pending)" stroke="#EF9F27" stroke-width="7"></path>
+<circle cx="165" cy="123" fill="#FFFFFF" r="4.5" stroke="#EF9F27" stroke-width="2.5"></circle>
+<!-- CLIP 3: 성북로 북단 (검수완료 #97C459) 방향: 북->남 -->
+<path d="M 158 -10 L 150 100" marker-end="url(#arrow-accepted)" stroke="#97C459" stroke-width="7"></path>
+<circle cx="158" cy="-10" fill="#FFFFFF" r="4.5" stroke="#97C459" stroke-width="2.5"></circle>
+<!-- CLIP 4: 성북로 중단 (반려 #E24B4A) 방향: 남->북 -->
+<path d="M 139 285 L 146 150" marker-end="url(#arrow-rejected)" stroke="#E24B4A" stroke-width="7"></path>
+<circle cx="139" cy="285" fill="#FFFFFF" r="4.5" stroke="#E24B4A" stroke-width="2.5"></circle>
+<!-- CLIP 5: 동소문로10길 (촬영완료·검수전 #EF9F27) 방향: 서->동 -->
+<path d="M 160 309 L 325 306" marker-end="url(#arrow-pending)" stroke="#EF9F27" stroke-width="7"></path>
+<circle cx="160" cy="309" fill="#FFFFFF" r="4.5" stroke="#EF9F27" stroke-width="2.5"></circle>
+<!-- CLIP 6: 동소문로 북단 (검수완료 #97C459) 방향: 남->북 -->
+<path d="M 370 85 L 376 -10" marker-end="url(#arrow-accepted)" stroke="#97C459" stroke-width="7"></path>
+<circle cx="370" cy="85" fill="#FFFFFF" r="4.5" stroke="#97C459" stroke-width="2.5"></circle>
+<!-- CLIP 7: 동소문로 중단 (반려 #E24B4A) 방향: 북->남 -->
+<path d="M 366 135 L 354 280" marker-end="url(#arrow-rejected)" stroke="#E24B4A" stroke-width="7"></path>
+<circle cx="366" cy="135" fill="#FFFFFF" r="4.5" stroke="#E24B4A" stroke-width="2.5"></circle>
+<!-- CLIP 8: 한성대입구역 연결로 (촬영완료·검수전 #EF9F27) 방향: 서->동 -->
+<path d="M 148 509 L 305 501" marker-end="url(#arrow-pending)" stroke="#EF9F27" stroke-width="7"></path>
+<circle cx="148" cy="509" fill="#FFFFFF" r="4.5" stroke="#EF9F27" stroke-width="2.5"></circle>
+<!-- CLIP 9: 성북로 남단 (현장 수집 중 - 미전송 클립 Dashed Blue #2B6CB0) -->
+<path d="M 136 335 L 129 445" stroke="#2B6CB0" stroke-dasharray="6,4" stroke-width="6.5"></path>
+<circle cx="136" cy="335" fill="#FFFFFF" r="4" stroke="#2B6CB0" stroke-width="2"></circle>
+</g>
+<!-- 6. User Current Vehicle GPS Location Dot with Pulsing Radar Ring -->
+<g transform="translate(129, 448)">
+<!-- Outer Pulsating Radar Wave -->
+<circle class="gps-halo" cx="0" cy="0" fill="#2B6CB0" fill-opacity="0.35" r="16"></circle>
+<!-- Solid Ring Border -->
+<circle cx="0" cy="0" fill="#2B6CB0" fill-opacity="0.2" r="11"></circle>
+<circle cx="0" cy="0" fill="#FFFFFF" r="7.5"></circle>
+<!-- Inner GPS Center Core -->
+<circle cx="0" cy="0" fill="#2B6CB0" r="5"></circle>
+<!-- Vehicle Heading Cone Marker -->
+<polygon fill="#2B6CB0" points="0,-12 4,-6 -4,-6"></polygon>
+</g>
+</svg>
+</div>
+<!-- Floating Controls: Top Right (Layers & My Location) -->
+<div class="absolute top-3 right-3 flex flex-col gap-2 z-20">
+<!-- Layer Switch Button -->
+<button aria-label="지도 레이어 변경" class="w-11 h-11 bg-white border border-[#E3E2DD] rounded-xl flex items-center justify-center text-[#1C1C1A] hover:bg-[#F5F5F3] touch-press transition-colors">
+<span class="material-symbols-outlined text-[22px]">layers</span>
+</button>
+<!-- Re-center GPS Button -->
+<button aria-label="현재 위치로 이동" class="w-11 h-11 bg-white border border-[#E3E2DD] rounded-xl flex items-center justify-center text-[#2B6CB0] hover:bg-[#F5F5F3] touch-press transition-colors">
+<span class="material-symbols-outlined text-[22px]">my_location</span>
+</button>
+</div>
+<!-- Floating Legend Card: Bottom Left (4 Status Rows) -->
+<div class="absolute bottom-20 left-3 z-20 bg-white/95 backdrop-blur-sm border border-[#E3E2DD] rounded-xl px-3 py-2.5 min-w-[130px]">
+<div class="text-[10px] text-[#6B6A65] font-medium tracking-tight mb-2 uppercase">수집 구분</div>
+<div class="flex flex-col gap-1.5 text-[11px] text-[#1C1C1A]">
+<!-- 미촬영 -->
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-1.5 rounded-full bg-[#888780] shrink-0"></span>
+<span class="font-normal text-[#6B6A65]">미촬영</span>
+</div>
+<!-- 촬영완료·검수전 -->
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-1.5 rounded-full bg-[#EF9F27] shrink-0"></span>
+<span class="font-medium text-[#1C1C1A]">촬영완료·검수전</span>
+</div>
+<!-- 검수완료 -->
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-1.5 rounded-full bg-[#97C459] shrink-0"></span>
+<span class="font-medium text-[#1C1C1A]">검수완료</span>
+</div>
+<!-- 반려 -->
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-1.5 rounded-full bg-[#E24B4A] shrink-0"></span>
+<span class="font-medium text-[#1C1C1A]">반려</span>
+</div>
+</div>
+</div>
+<!-- Floating Status Pill: Bottom Right -->
+<div class="absolute bottom-20 right-3 z-20 flex items-center gap-2 bg-white/95 backdrop-blur-sm border border-[#E3E2DD] rounded-full px-3 py-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EF9F27] opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#EF9F27]"></span>
+</span>
+<span class="text-[12px] font-medium text-[#1C1C1A] tracking-tight">수집 대기중</span>
+</div>
+</main>
+<nav aria-label="메인 내비게이션" class="fixed bottom-0 left-0 right-0 z-50 w-full flex justify-around items-center h-16 bg-white border-t border-[#E3E2DD] px-2 max-w-[420px] mx-auto">
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-[12px] leading-none">홈</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#2B6CB0] font-medium gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="text-[12px] leading-none">지도</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">videocam</span>
+<span class="text-[12px] leading-none">촬영</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[64px] min-h-[48px] text-[#6B6A65] font-normal gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">photo_library</span>
+<span class="text-[12px] leading-none">앨범</span>
+</a>
+</nav>
+</div>
+</body></html>

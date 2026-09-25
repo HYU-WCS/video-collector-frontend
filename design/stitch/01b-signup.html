@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>회원가입 - 영상수집</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Noto Sans KR & Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&amp;family=Public+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            // Extended semantic tokens mapped directly to the design system spec
+            bgPrimary: "#FFFFFF",
+            surface: "#F5F5F3",
+            borderLine: "#E3E2DD",
+            textPrimary: "#1C1C1A",
+            textMuted: "#6B6A65",
+            accent: "#2B6CB0",
+            statusError: "#E24B4A"
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            display: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            body: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            label: ["Noto Sans KR", "Public Sans", "sans-serif"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    body {
+      font-family: 'Noto Sans KR', 'Public Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      background-color: #FFFFFF;
+      color: #1C1C1A;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    input:focus {
+      outline: none;
+      border-color: #2B6CB0;
+      box-shadow: 0 0 0 1px #2B6CB0;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#FFFFFF] min-h-screen flex flex-col justify-between selection:bg-[#2B6CB0] selection:text-white">
+<!-- Minimal Outdoor-optimized Top Status/Brand Bar (No navigation links as per Semantic Shell Mandate for Transactional/Login) -->
+<header class="w-full pt-8 pb-4 px-6 flex justify-between items-center text-[#6B6A65] text-xs">
+<div class="flex items-center gap-1.5 font-medium tracking-tight">
+<span class="w-2 h-2 rounded-full bg-[#97C459]"></span>
+<span>현장 수집 모드</span>
+</div>
+<span class="font-normal text-[11px] tracking-wider text-[#6B6A65]">v2.4.0</span>
+</header>
+<!-- Main Centered Content Container -->
+<main class="w-full max-w-sm mx-auto px-6 flex-1 flex flex-col justify-center py-6">
+<!-- App Brand Anchor -->
+<div class="flex flex-col items-center mb-10 text-center">
+<!-- Road / Camera Icon Container - Utilitarian Flat Design -->
+<div class="w-14 h-14 rounded-xl bg-[#F5F5F3] border border-[#E3E2DD] flex items-center justify-center mb-4 text-[#1C1C1A]">
+<span class="material-symbols-outlined text-[28px]" data-icon="videocam">videocam</span>
+</div>
+<h1 class="text-[24px] font-medium tracking-tight text-[#1C1C1A] leading-snug">
+        회원가입
+      </h1>
+<p class="text-[13px] text-[#6B6A65] mt-1 font-normal">
+        아이디와 비밀번호만 정하면 바로 시작합니다
+      </p>
+</div>
+<!-- Login Form -->
+<form class="space-y-4" id="loginForm" onsubmit="event.preventDefault(); return false;">
+<!-- Field: ID -->
+<div class="space-y-1.5">
+<label class="block text-[13px] font-medium text-[#1C1C1A]" for="username">
+          아이디
+        </label>
+<div class="relative">
+<input autocomplete="username" class="w-full h-[50px] px-3.5 bg-[#FFFFFF] border border-[#E3E2DD] rounded-lg text-[15px] text-[#1C1C1A] placeholder-[#888780] transition-colors focus:ring-0 focus:border-[#2B6CB0]" id="username" name="username" placeholder="사용할 아이디" required="" type="text"/>
+</div>
+</div>
+<!-- Field: Password -->
+<div class="space-y-1.5">
+<label class="block text-[13px] font-medium text-[#1C1C1A]" for="password">
+          비밀번호
+        </label>
+<div class="relative flex items-center">
+<input autocomplete="new-password" class="w-full h-[50px] pl-3.5 pr-12 bg-[#FFFFFF] border border-[#E3E2DD] rounded-lg text-[15px] text-[#1C1C1A] placeholder-[#888780] transition-colors focus:ring-0 focus:border-[#2B6CB0]" id="password" name="password" placeholder="비밀번호" required="" type="password"/>
+<button aria-label="비밀번호 표시 전환" class="absolute right-0 top-0 h-[50px] w-12 flex items-center justify-center text-[#6B6A65] active:opacity-60 transition-opacity" id="togglePassword" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility" id="passwordEyeIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Field: Password confirm -->
+<div class="space-y-1.5">
+<label class="block text-[13px] font-medium text-[#1C1C1A]" for="password2">
+          비밀번호 확인
+        </label>
+<input autocomplete="new-password" class="w-full h-[50px] px-3.5 bg-[#FFFFFF] border border-[#E3E2DD] rounded-lg text-[15px] text-[#1C1C1A] placeholder-[#888780] transition-colors focus:ring-0 focus:border-[#2B6CB0]" id="password2" name="password2" placeholder="한 번 더 입력" required="" type="password"/>
+</div>
+<!-- Inline Error Text Slot -->
+<div class="flex items-center gap-1.5 pt-0.5 text-[#E24B4A] text-[13px] leading-tight" id="errorMessage">
+<span class="material-symbols-outlined text-[16px] shrink-0" data-icon="error">error</span>
+<span>이미 있는 아이디입니다</span>
+</div>
+<!-- Primary Action Button -->
+<div class="pt-3">
+<button class="w-full h-[52px] bg-[#2B6CB0] hover:bg-[#235891] active:opacity-85 text-white font-medium text-[16px] rounded-lg flex items-center justify-center transition-colors" id="loginSubmitBtn" type="submit">
+          가입하고 시작하기
+        </button>
+</div>
+</form>
+<!-- 로그인으로 돌아가기 -->
+<p class="mt-6 text-center text-[14px] text-[#6B6A65]">
+      이미 계정이 있나요?
+      <a class="ml-1 inline-flex items-center min-h-[44px] font-medium text-[#2B6CB0] active:opacity-70" href="01-login.html">로그인</a>
+</p>
+</main>
+<!-- Footer Notice Section -->
+<footer class="w-full py-6 px-4 text-center">
+<p class="text-[12px] text-[#6B6A65] font-normal leading-relaxed">
+      이메일·휴대폰 인증 없이 가입됩니다
+    </p>
+</footer>
+<!-- Micro-interactions Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const passwordInput = document.getElementById('password');
+      const togglePasswordBtn = document.getElementById('togglePassword');
+      const passwordEyeIcon = document.getElementById('passwordEyeIcon');
+      const loginForm = document.getElementById('loginForm');
+      const errorMessage = document.getElementById('errorMessage');
+
+      // Toggle Password Visibility
+      if (togglePasswordBtn && passwordInput && passwordEyeIcon) {
+        togglePasswordBtn.addEventListener('click', () => {
+          const isPassword = passwordInput.getAttribute('type') === 'password';
+          passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+          passwordEyeIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+          passwordEyeIcon.setAttribute('data-icon', isPassword ? 'visibility_off' : 'visibility');
+        });
+      }
+
+      // Re-trigger visual feedback on form submit
+      if (loginForm && errorMessage) {
+        loginForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          // Ensure error message is visibly accentuated
+          errorMessage.classList.remove('opacity-90');
+          errorMessage.classList.add('opacity-100');
+        });
+      }
+    });
+  </script>
+</body></html>

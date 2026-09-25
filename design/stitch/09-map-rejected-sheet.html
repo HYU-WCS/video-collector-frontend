@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>영상수집 - 지도</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Noto+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              accent: "#2B6CB0",
+              accentDark: "#235891",
+              surface: "#F5F5F3",
+              border: "#E3E2DD",
+              textPrimary: "#1C1C1A",
+              textMuted: "#6B6A65",
+              statusNone: "#888780",
+              statusPending: "#EF9F27",
+              statusAccepted: "#97C459",
+              statusRejected: "#E24B4A"
+            }
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["'Noto Sans KR'", "Public Sans", "sans-serif"],
+            display: ["'Noto Sans KR'", "Public Sans", "sans-serif"],
+            body: ["'Noto Sans KR'", "Public Sans", "sans-serif"],
+            label: ["'Noto Sans KR'", "Public Sans", "sans-serif"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Hide scrollbar for clean chip row */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-white text-[#1C1C1A] antialiased h-screen w-screen overflow-hidden flex flex-col justify-between">
+<!-- Mobile Frame Container (Fixed viewport height & utilitarian touch target structure) -->
+<div class="relative w-full h-full flex flex-col overflow-hidden bg-[#F5F5F3]">
+<!-- TOP HEADER & CONTROLS WRAPPER (Z-30) -->
+<header class="relative z-30 bg-white border-b border-[#E3E2DD] flex-shrink-0">
+<!-- Top App Bar (56px) -->
+<div class="flex items-center justify-between px-4 h-14">
+<!-- Leading Action: Back Arrow -->
+<button aria-label="뒤로가기" class="w-10 h-10 -ml-1 flex items-center justify-center rounded-lg text-[#1C1C1A] hover:bg-[#F5F5F3] active:opacity-75 transition-colors" type="button">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<!-- Center-left Title -->
+<h1 class="flex-1 ml-2 font-headline text-[17px] font-medium text-[#1C1C1A] tracking-tight">지도</h1>
+<!-- Trailing Element: Blue Pill Badge -->
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-[#EBF2FA] text-[#2B6CB0] text-xs font-medium border border-[#2B6CB0]/30">
+            전체 42%
+          </span>
+</div>
+</div>
+<!-- Filter Chips Row (Horizontal Scrollable) -->
+<div class="flex items-center gap-2 px-4 pb-3 overflow-x-auto no-scrollbar">
+<!-- 1. 전체 (Selected) -->
+<button class="flex-shrink-0 rounded-full bg-[#1C1C1A] text-white px-4 py-2.5 text-[14px] font-medium transition-colors" type="button">
+          전체
+        </button>
+<!-- 2. 내 촬영 (Unselected) -->
+<button class="flex-shrink-0 rounded-full bg-[#F5F5F3] border border-[#E3E2DD] text-[#6B6A65] hover:text-[#1C1C1A] px-4 py-2.5 text-[14px] font-medium transition-colors" type="button">
+          내 촬영
+        </button>
+<!-- 3. 반려 (Unselected) -->
+<button class="flex-shrink-0 rounded-full bg-[#F5F5F3] border border-[#E3E2DD] text-[#6B6A65] hover:text-[#1C1C1A] px-4 py-2.5 text-[14px] font-medium transition-colors" type="button">
+          반려
+        </button>
+</div>
+</header>
+<!-- MAP CANVAS BODY -->
+<main aria-label="수집 지도 캔버스" class="relative flex-1 w-full h-full overflow-hidden bg-[#EFEFEA]">
+<!-- SVG Vector Map Rendering -->
+<svg class="absolute inset-0 w-full h-full object-cover" preserveaspectratio="xMidYMid slice" viewbox="0 0 400 700" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Subtle building patterns / textures -->
+<pattern height="20" id="dot-grid" patternunits="userSpaceOnUse" width="20" x="0" y="0">
+<circle cx="2" cy="2" fill="#DCDAD3" r="0.75"></circle>
+</pattern>
+</defs>
+<!-- Background Ground Tone -->
+<rect fill="#EFEFEA" height="100%" width="100%"></rect>
+<rect fill="url(#dot-grid)" height="100%" opacity="0.4" width="100%"></rect>
+<!-- Utilitarian Building Blocks (Neutral architectural footprints) -->
+<g fill="#E2E0D8" stroke="#D3D0C7" stroke-width="0.75">
+<!-- Block Group North -->
+<rect height="60" rx="3" width="80" x="24" y="20"></rect>
+<rect height="42" rx="3" width="60" x="114" y="16"></rect>
+<rect height="54" rx="3" width="130" x="250" y="24"></rect>
+<!-- Block Group Middle-West -->
+<rect height="88" rx="3" width="70" x="18" y="112"></rect>
+<polygon points="104,106 180,106 166,192 104,178"></polygon>
+<rect height="70" rx="3" width="76" x="28" y="224"></rect>
+<!-- Block Group Center-East -->
+<rect height="96" rx="3" width="82" x="214" y="104"></rect>
+<rect height="74" rx="3" width="72" x="312" y="114"></rect>
+<polygon points="214,228 300,214 316,310 230,320"></polygon>
+<!-- Block Group South-West -->
+<rect height="58" rx="3" width="66" x="26" y="324"></rect>
+<rect height="68" rx="3" width="78" x="114" y="320"></rect>
+<rect height="92" rx="3" width="86" x="32" y="410"></rect>
+<rect height="80" rx="3" width="64" x="134" y="416"></rect>
+<!-- School / Facility Landmark Outline (성북초교 Area) -->
+<rect fill="#DCDAD0" height="120" rx="4" stroke="#CAC7BD" width="64" x="318" y="240"></rect>
+</g>
+<!-- Korean Landmark & Road Name Labels (Cartographic Micro-Typography) -->
+<g fill="#84827C" font-family="'Noto Sans KR', sans-serif" font-size="10" font-weight="500">
+<text x="326" y="300">성북초교</text>
+<text fill="#999790" font-size="9" x="36" y="58">성북동 주민센터</text>
+<text fill="#999790" font-size="9" x="228" y="152">한성대 입구</text>
+<!-- Street Names positioned along grid lines -->
+<text fill="#75736E" font-size="11" letter-spacing="0.5" x="44" y="106">성북로</text>
+<text fill="#75736E" font-size="11" letter-spacing="0.5" x="212" y="96">동소문로</text>
+<text fill="#75736E" font-size="10" x="20" y="316">삼선교로</text>
+</g>
+<!-- Road Base Infrastructure (Neutral Underlying Lines) -->
+<g stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+<path d="M -10 96 L 410 96" stroke-width="12"></path>
+<path d="M 194 -10 L 194 560" stroke-width="12"></path>
+<path d="M -10 214 L 410 214" stroke-width="10"></path>
+<path d="M 104 96 L 104 560" stroke-width="9"></path>
+<path d="M -10 398 L 410 398" stroke-width="11"></path>
+<path d="M 306 96 L 306 560" stroke-width="10"></path>
+</g>
+<!-- COLLECTOR STATUS ROAD NETWORK -->
+<!-- 1. Gray #888780: 미촬영 (Not Captured) -->
+<g opacity="0.95" stroke="#888780" stroke-linecap="round" stroke-linejoin="round">
+<!-- North-South West Corridor -->
+<path d="M 104 96 L 104 214" stroke-width="6"></path>
+<path d="M 104 214 L 104 398" stroke-dasharray="8 3" stroke-width="6"></path>
+<!-- Lower Secondary Corridors -->
+<path d="M -10 398 L 104 398" stroke-width="6"></path>
+<path d="M 194 398 L 410 398" stroke-width="6"></path>
+<path d="M 306 214 L 306 480" stroke-width="6"></path>
+<path d="M 104 398 L 104 540" stroke-width="6"></path>
+</g>
+<!-- 2. Amber #EF9F27: 촬영완료/검수전 (Captured, Pending Review) -->
+<g stroke="#EF9F27" stroke-linecap="round" stroke-linejoin="round">
+<path d="M -10 96 L 104 96" stroke-width="6"></path>
+<path d="M 194 -10 L 194 96" stroke-width="6"></path>
+<path d="M 306 96 L 410 96" stroke-width="6"></path>
+</g>
+<!-- 3. Green #97C459: 검수완료 (Accepted / Complete) -->
+<g stroke="#97C459" stroke-linecap="round" stroke-linejoin="round">
+<path d="M 104 96 L 194 96" stroke-width="6"></path>
+<path d="M -10 214 L 194 214" stroke-width="6"></path>
+<path d="M 194 214 L 194 398" stroke-width="6"></path>
+</g>
+<!-- 4. SELECTED REJECTED SEGMENT (Prominently Highlighted Red #E24B4A) -->
+<!-- 반려 구간 하나: 성북로 12길 -->
+<g id="selected-rejected-segment">
+<!-- Outer subtle aura ring for focus -->
+<path d="M 194 96 L 306 96" opacity="0.3" stroke="#E24B4A" stroke-linecap="round" stroke-width="12"></path>
+<!-- Thick Primary Red Stroke -->
+<path d="M 194 96 L 306 96" stroke="#E24B4A" stroke-linecap="round" stroke-width="8"></path>
+<!-- Endpoint Node A (Start of rejected section) -->
+<circle cx="194" cy="96" fill="#FFFFFF" r="6" stroke="#E24B4A" stroke-width="3"></circle>
+<circle cx="194" cy="96" fill="#E24B4A" r="2"></circle>
+<!-- Endpoint Node B (End of rejected section) -->
+<circle cx="306" cy="96" fill="#FFFFFF" r="6" stroke="#E24B4A" stroke-width="3"></circle>
+<circle cx="306" cy="96" fill="#E24B4A" r="2"></circle>
+<!-- Directional indicator pulse tag on the segment -->
+<g transform="translate(250, 80)">
+<rect fill="#E24B4A" height="18" rx="4" width="36" x="-18" y="-10"></rect>
+<text fill="#FFFFFF" font-family="'Noto Sans KR', sans-serif" font-size="9" font-weight="500" text-anchor="middle" x="0" y="2.5">반려</text>
+</g>
+</g>
+<!-- Current Field Worker Position (Utilitarian Blue GPS Pin) -->
+<g transform="translate(194, 214)">
+<circle cx="0" cy="0" fill="#2B6CB0" opacity="0.18" r="16"></circle>
+<circle cx="0" cy="0" fill="#2B6CB0" r="7" stroke="#FFFFFF" stroke-width="2.5"></circle>
+<polygon fill="#2B6CB0" points="0,-12 4,-6 -4,-6"></polygon>
+</g>
+</svg>
+<!-- Floating Map Control: Context GPS / Location Button (Top Right) -->
+<!-- Strictly NO zoom +/- and NO compass -->
+<div class="absolute top-4 right-4 z-20">
+<button aria-label="내 위치" class="w-11 h-11 bg-white border border-[#E3E2DD] rounded-xl flex items-center justify-center text-[#1C1C1A] active:bg-[#F5F5F3] transition-colors" type="button">
+<span class="material-symbols-outlined text-[22px]">my_location</span>
+</button>
+</div>
+<!-- Segment Status Legend (Utilitarian field helper) -->
+<div class="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-sm border border-[#E3E2DD] rounded-lg px-2.5 py-1.5 flex items-center gap-3 text-[11px] text-[#6B6A65]">
+<div class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-[#888780]"></span>
+<span>미촬영</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-[#EF9F27]"></span>
+<span>대기</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-[#97C459]"></span>
+<span>완료</span>
+</div>
+<div class="flex items-center gap-1 font-medium text-[#E24B4A]">
+<span class="w-2.5 h-2.5 rounded-full bg-[#E24B4A]"></span>
+<span>반려</span>
+</div>
+</div>
+</main>
+<!-- BOTTOM SHEET: Covers lower third, flat, border-t, rounded-t-2xl -->
+<section aria-label="구간 상세 정보" class="relative z-30 w-full bg-white rounded-t-2xl border-t border-[#E3E2DD] pb-safe flex-shrink-0">
+<!-- Subtle Centered Drag Handle -->
+<div class="w-full pt-3 pb-1 flex justify-center cursor-grab active:cursor-grabbing">
+<div class="w-10 h-1 bg-[#D1D0CB] rounded-full"></div>
+</div>
+<!-- Sheet Content Container -->
+<div class="px-5 pt-2 pb-6 space-y-3.5">
+<!-- Row 1: Road name & Rejected status badge -->
+<div class="flex items-center justify-between gap-3">
+<h2 class="text-lg font-medium text-[#1C1C1A] tracking-tight">성북로 12길</h2>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#FDF2F2] text-[#E24B4A] border border-[#E24B4A]/40 flex-shrink-0">
+            반려
+          </span>
+</div>
+<!-- Row 2: Reject Reason with warning icon -->
+<div class="flex items-center gap-1.5 text-sm text-[#6B6A65]">
+<span class="material-symbols-outlined text-[#E24B4A] text-[18px]">error</span>
+<span>반려 사유: <strong class="font-medium text-[#1C1C1A]">GPS 이상</strong></span>
+</div>
+<!-- Row 3: Inspection timestamp & inspector hint -->
+<div class="flex items-center justify-between text-xs text-[#888780]">
+<span>검수 09/20 18:30</span>
+<span>누구든 다시 찍으면 됩니다</span>
+
+</div>
+<!-- Action Buttons Row: Dual Buttons Side-by-Side (52px ergonomic height) -->
+<div class="pt-2 flex items-center gap-2.5 w-full">
+<!-- Secondary Outlined Button -->
+<button class="w-full h-[50px] bg-white border border-[#E3E2DD] text-[#1C1C1A] hover:bg-[#F5F5F3] active:bg-[#EBEAE5] rounded-lg font-medium text-sm flex items-center justify-center gap-1.5 px-3 transition-colors" type="button">
+<span class="material-symbols-outlined text-[19px] text-[#6B6A65]">play_circle</span>
+<span>반려된 영상 보기</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</body></html>

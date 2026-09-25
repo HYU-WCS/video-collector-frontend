@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>설정 - 영상수집</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Public Sans / Noto Sans KR fallback -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&amp;family=Public+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: "#FFFFFF",
+              surface: "#F5F5F3",
+              border: "#E3E2DD",
+              text: "#1C1C1A",
+              muted: "#6B6A65",
+              accent: "#2B6CB0",
+              danger: "#E24B4A",
+              none: "#888780",
+              pending: "#EF9F27",
+              accepted: "#97C459"
+            }
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            display: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            body: ["Noto Sans KR", "Public Sans", "sans-serif"],
+            label: ["Noto Sans KR", "Public Sans", "sans-serif"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    body {
+      font-family: 'Noto Sans KR', 'Public Sans', sans-serif;
+      background-color: #FFFFFF;
+      color: #1C1C1A;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .touch-target {
+      min-height: 52px;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-white text-[#1C1C1A] min-h-screen flex justify-center selection:bg-[#2B6CB0]/10">
+<!-- Main Mobile Container (Focused View / Sub-Screen: Shell suppressed) -->
+<div class="w-full max-w-md min-h-screen bg-white flex flex-col justify-between pb-8">
+<!-- Header / Top Bar -->
+<div>
+<header class="sticky top-0 z-40 bg-white border-b border-[#E3E2DD] h-14 px-3 flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<!-- Back Button: Generous target (min 48px) -->
+<button aria-label="뒤로가기" class="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-[#F5F5F3] active:bg-[#E3E2DD] transition-colors text-[#1C1C1A]" onclick="history.back()" type="button">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<h1 class="font-headline text-[18px] font-medium leading-none tracking-tight text-[#1C1C1A]">
+            설정
+          </h1>
+</div>
+<!-- Status indicator / Context -->
+<div class="flex items-center pr-2">
+<span class="text-[12px] font-medium text-[#6B6A65] bg-[#F5F5F3] px-2.5 py-1 rounded-full border border-[#E3E2DD]">
+            현장단말 #04
+          </span>
+</div>
+</header>
+<!-- Content Area: Grouped Lists -->
+<main class="w-full">
+<!-- Section 1: 업로드 -->
+<section class="mt-2">
+<h2 class="text-[13px] font-medium text-[#6B6A65] px-4 pt-4 pb-2 tracking-normal">
+            업로드
+          </h2>
+<div class="border-y border-[#E3E2DD] bg-white divide-y divide-[#E3E2DD]">
+<!-- Toggle Item: Wi-Fi에서만 업로드 -->
+<label class="touch-target px-4 py-3.5 flex items-center justify-between cursor-pointer hover:bg-[#F5F5F3]/50 active:bg-[#F5F5F3] transition-colors">
+<div class="flex flex-col pr-3">
+<span class="text-[15px] font-medium text-[#1C1C1A] leading-snug">Wi-Fi에서만 업로드</span>
+<span class="text-[12px] font-normal text-[#6B6A65] mt-0.5">LTE/5G 모바일 데이터 소모 방지</span>
+</div>
+<div class="relative inline-flex items-center shrink-0">
+<input checked="" class="sr-only peer" id="toggle-wifi-only" type="checkbox"/>
+<div class="w-12 h-7 bg-[#E3E2DD] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2B6CB0]"></div>
+</div>
+</label>
+</div>
+</section>
+<!-- Section 2: 촬영 -->
+<section class="mt-4">
+<h2 class="text-[13px] font-medium text-[#6B6A65] px-4 pt-3 pb-2 tracking-normal">
+            촬영
+          </h2>
+<div class="border-y border-[#E3E2DD] bg-white divide-y divide-[#E3E2DD]">
+<!-- Row: 영상 화질 -->
+<button class="w-full touch-target px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#F5F5F3] active:bg-[#E3E2DD] transition-colors" type="button">
+<span class="text-[15px] font-medium text-[#1C1C1A]">영상 화질</span>
+<div class="flex items-center space-x-1.5 text-[#6B6A65]">
+<span class="text-[14px] font-normal text-[#6B6A65]">1080p</span>
+<span class="material-symbols-outlined text-[20px] text-[#6B6A65]">chevron_right</span>
+</div>
+</button>
+</div>
+</section>
+<!-- Section 3: 저장공간 -->
+<section class="mt-4">
+<h2 class="text-[13px] font-medium text-[#6B6A65] px-4 pt-3 pb-2 tracking-normal">
+            저장공간
+          </h2>
+<div class="border-y border-[#E3E2DD] bg-white divide-y divide-[#E3E2DD]">
+<!-- Storage Status & Progress Bar -->
+<div class="px-4 py-3.5">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[15px] font-medium text-[#1C1C1A]">저장공간 현황</span>
+<span class="text-[14px] font-medium text-[#2B6CB0]">12.4GB 사용 가능</span>
+</div>
+<!-- Flat Progress Bar -->
+<div class="w-full bg-[#E3E2DD] h-2 rounded-full overflow-hidden flex">
+<div aria-label="사용 중 40.2GB" class="bg-[#2B6CB0] h-full" style="width: 76.5%;"></div>
+</div>
+<div class="flex justify-between items-center text-[12px] text-[#6B6A65] mt-2">
+<span>단말 사용 중 40.2GB</span>
+<span>전체 64GB (내장)</span>
+</div>
+</div>
+<!-- Row: 업로드 완료분 정리 -->
+<button class="w-full touch-target px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#F5F5F3] active:bg-[#E3E2DD] transition-colors" type="button">
+<div class="flex flex-col">
+<span class="text-[15px] font-medium text-[#1C1C1A]">업로드 완료분 정리</span>
+<span class="text-[12px] font-normal text-[#6B6A65] mt-0.5">서버 전송 완료 영상 일괄 삭제 (8.1GB 확보 가능)</span>
+</div>
+<span class="material-symbols-outlined text-[20px] text-[#6B6A65] shrink-0 ml-2">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Section 4: 계정 -->
+<section class="mt-4">
+<h2 class="text-[13px] font-medium text-[#6B6A65] px-4 pt-3 pb-2 tracking-normal">
+            계정
+          </h2>
+<div class="border-y border-[#E3E2DD] bg-white divide-y divide-[#E3E2DD]">
+<!-- User Profile Row -->
+<div class="touch-target px-4 py-3.5 flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-full bg-[#F5F5F3] border border-[#E3E2DD] flex items-center justify-center text-[#1C1C1A] text-[14px] font-medium">
+                  오
+                </div>
+<div class="flex flex-col">
+<span class="text-[15px] font-medium text-[#1C1C1A] leading-tight">오동현</span>
+<span class="text-[12px] text-[#6B6A65] mt-0.5">collector_089@roaddata.kr</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded text-[12px] font-normal bg-[#F5F5F3] text-[#6B6A65] border border-[#E3E2DD]">
+                수집가
+              </span>
+</div>
+<!-- Logout Row -->
+<button class="w-full touch-target px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#F5F5F3] active:bg-[#E3E2DD] transition-colors group" type="button">
+<span class="text-[15px] font-medium text-[#E24B4A]">로그아웃</span>
+<span class="material-symbols-outlined text-[20px] text-[#E24B4A]">logout</span>
+</button>
+</div>
+</section>
+</main>
+</div>
+<!-- Bottom Area: Utilitarian Version Meta -->
+<footer class="mt-8 px-4 text-center">
+<p class="text-[12px] text-[#6B6A65] font-normal">
+        버전 1.0.0
+      </p>
+<p class="text-[11px] text-[#888780] mt-0.5">
+      </p>
+</footer>
+</div>
+</body></html>

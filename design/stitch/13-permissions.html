@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>권한 설정 | 영상수집</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Public Sans / Noto Sans equivalent typography -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&amp;family=Public+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              primary: "#2B6CB0",
+              primaryHover: "#245891",
+              bg: "#FFFFFF",
+              surface: "#F5F5F3",
+              border: "#E3E2DD",
+              textPrimary: "#1C1C1A",
+              textMuted: "#6B6A65"
+            }
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["'Noto Sans KR'", "'Public Sans'", "sans-serif"],
+            display: ["'Noto Sans KR'", "'Public Sans'", "sans-serif"],
+            body: ["'Noto Sans KR'", "'Public Sans'", "sans-serif"],
+            label: ["'Noto Sans KR'", "'Public Sans'", "sans-serif"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    html { height: 100%; }
+    body {
+      font-family: 'Noto Sans KR', 'Public Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #FFFFFF;
+      color: #1C1C1A;
+    }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: 400;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Disable default overscroll and tap highlights for clean mobile experience */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+<style>
+    html { height: 100%; }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-white min-h-screen flex flex-col justify-between selection:bg-brand-surface">
+<!-- Mobile Screen Container -->
+<div class="w-full max-w-md mx-auto min-h-screen flex flex-col justify-between px-6 pt-12 pb-8 sm:py-12">
+<!-- Top & Main Content Wrapper -->
+<div class="flex-1 flex flex-col">
+<!-- Header Section -->
+<div class="space-y-2 mb-10">
+<h1 class="text-[26px] leading-tight font-medium text-brand-textPrimary tracking-tight">
+          시작하기 전에
+        </h1>
+<p class="text-[15px] leading-relaxed text-brand-textMuted font-normal">
+          영상 수집에 필요한 권한입니다
+        </p>
+</div>
+<!-- Permissions List (Structured strictly for utilitarian field readability) -->
+<div class="space-y-4">
+<!-- Camera Permission Item -->
+<div class="flex items-start gap-4 p-4 rounded-xl bg-brand-surface border border-brand-border transition-colors">
+<div aria-hidden="true" class="w-12 h-12 rounded-lg bg-white border border-brand-border flex items-center justify-center shrink-0 text-brand-textPrimary">
+<span class="material-symbols-outlined text-[24px]">videocam</span>
+</div>
+<div class="flex-1 pt-0.5">
+<div class="flex items-center gap-2 mb-1">
+<span class="text-[17px] font-medium text-brand-textPrimary tracking-tight">카메라</span>
+<span class="text-[11px] font-medium px-1.5 py-0.5 rounded bg-white text-brand-textMuted border border-brand-border">필수</span>
+</div>
+<p class="text-[14px] leading-relaxed text-brand-textMuted font-normal">
+              도로 영상을 촬영합니다
+            </p>
+</div>
+</div>
+<!-- Location Permission Item -->
+<div class="flex items-start gap-4 p-4 rounded-xl bg-brand-surface border border-brand-border transition-colors">
+<div aria-hidden="true" class="w-12 h-12 rounded-lg bg-white border border-brand-border flex items-center justify-center shrink-0 text-brand-textPrimary">
+<span class="material-symbols-outlined text-[24px]">location_on</span>
+</div>
+<div class="flex-1 pt-0.5">
+<div class="flex items-center gap-2 mb-1">
+<span class="text-[17px] font-medium text-brand-textPrimary tracking-tight">위치</span>
+<span class="text-[11px] font-medium px-1.5 py-0.5 rounded bg-white text-brand-textMuted border border-brand-border">필수</span>
+</div>
+<p class="text-[14px] leading-relaxed text-brand-textMuted font-normal break-keep">
+              촬영 경로를 기록합니다. 걷는 중에도 기록이 필요해 항상 허용이 필요합니다
+            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Docked Area: Helper note and CTA Button -->
+<div class="pt-8 pb-2 space-y-4">
+<p class="text-center text-[13px] text-brand-textMuted font-normal leading-tight">
+        설정에서 언제든 권한을 변경할 수 있습니다
+      </p>
+<!-- Primary Action Button: High touch target for 1-handed field use -->
+<button class="w-full h-[52px] bg-[#2B6CB0] hover:bg-[#245891] active:opacity-90 text-white font-medium text-[16px] rounded-lg flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2B6CB0]" onclick="requestPermissions()" type="button">
+        권한 허용하기
+      </button>
+</div>
+</div>
+<script>
+    function requestPermissions() {
+      // Lightweight interaction state feedback for field worker
+      const button = document.querySelector('button');
+      if (button) {
+        button.innerText = '권한 확인 중...';
+        button.style.opacity = '0.85';
+        setTimeout(() => {
+          button.innerText = '권한 허용하기';
+          button.style.opacity = '1';
+        }, 1200);
+      }
+    }
+  </script>
+</body></html>
