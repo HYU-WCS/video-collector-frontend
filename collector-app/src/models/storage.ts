@@ -61,3 +61,14 @@ export const clearToken = () => SecureStore.deleteItemAsync(TOKEN_KEY);
 const NOTICE_KEY = 'reject_seen_at';
 export const saveNoticeSeenAt = (iso: string) => SecureStore.setItemAsync(NOTICE_KEY, iso);
 export const loadNoticeSeenAt = () => SecureStore.getItemAsync(NOTICE_KEY);
+
+/** 저장된 궤적 전부 (개발용 내보내기). 업로드 전이라 pending 폴더에 남아 있다. */
+export async function listTrajectories(): Promise<Trajectory[]> {
+  await ensureDirs();
+  const names = (await FileSystem.readDirectoryAsync(PENDING_DIR)).filter(n => n.endsWith('.json'));
+  const out: Trajectory[] = [];
+  for (const n of names) {
+    try { out.push(JSON.parse(await FileSystem.readAsStringAsync(PENDING_DIR + n))); } catch {}
+  }
+  return out.sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+}

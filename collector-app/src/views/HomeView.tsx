@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
+import { exportTrajectories } from '@/controllers/devExport';
 import { useRejectNotice } from '@/controllers/useRejectNotice';
 import { useUploadQueue } from '@/controllers/useUploadQueue';
 import { mockProgress } from '@/models/mockApi';
@@ -45,6 +46,12 @@ export function HomeView({ navigation }: any) {
         <Text style={{ fontSize: 16 }}>앨범 리스트</Text>
         <Text style={{ color: Color.textMuted, fontSize: 13, marginTop: 4 }}>찍은 데이터 확인</Text>
       </Pressable>
+      {__DEV__ && (
+        <Pressable onPress={async () => { if (!(await exportTrajectories())) alert('저장된 궤적이 없어요'); }}
+          style={{ padding: 12, marginTop: 12 }}>
+          <Text style={{ color: Color.textMuted, fontSize: 13, textAlign: 'center' }}>[개발] 궤적 내보내기</Text>
+        </Pressable>
+      )}
     </Screen>
   );
 }
