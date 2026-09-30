@@ -22,6 +22,7 @@ export interface Trajectory {
   recorded_at: string;
   sample_rate_sec: number;
   points: TrajectoryPoint[];
+  steps?: number;         // [실험용] 촬영자가 직접 센 걸음 수 — 거리 정확도 검증용
 }
 
 export interface Video {

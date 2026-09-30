@@ -129,7 +129,7 @@ export function useRecorder() {
   }, []);
 
   /** 카메라가 돌려준 캐시 uri를 받아 앱 저장소로 옮기고 업로드 큐에 넣는다. */
-  const finish = useCallback(async (cacheUri: string, keep: boolean) => {
+  const finish = useCallback(async (cacheUri: string, keep: boolean, steps?: number) => {
     setRecording(false);
     const id = localId.current;
     const durationSec = startedAt.current ? Math.round((Date.now() - startedAt.current) / 1000) : 0;
@@ -142,6 +142,7 @@ export function useRecorder() {
       recorded_at: new Date().toISOString(),
       sample_rate_sec: SAMPLE_MS / 1000,
       points: points.current,
+      steps,
     });
 
     await queue.add({

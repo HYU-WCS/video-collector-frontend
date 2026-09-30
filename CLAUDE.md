@@ -22,7 +22,7 @@
 - `collector-app/` — 수집가용 RN 앱 (진행 중)
 - `design/` — Stitch 생성 프롬프트
 - `docs/` — 설계 문서
-- 검수 웹 — 미착수
+- 검수 웹 — 팀원이 구현·배포 (`HYU-WCS/video-collector-web`, `:8002/video-validator/`). 내 담당 아님
 
 ## 한 문단 요약
 

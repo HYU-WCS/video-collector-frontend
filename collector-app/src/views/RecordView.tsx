@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -18,6 +18,7 @@ export function RecordView({ navigation }: any) {
   const nearby = useNearbyRoads(rec.position);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [steps, setSteps] = useState('');   // [실험용] 직접 센 걸음 수
   const insets = useSafeAreaInsets();
   const top = Math.max(insets.top, 12);
 
@@ -40,7 +41,7 @@ export function RecordView({ navigation }: any) {
       rec.start();
       try {
         const video = await cam.current?.recordAsync();
-        if (video?.uri) setConfirming(video.uri);
+        if (video?.uri) { setSteps(''); setConfirming(video.uri); }
       } catch (e: any) {
         // 녹화가 시작조차 안 되면 recording 상태가 남아 버튼이 멈춘다. 되돌리고 이유를 보여준다.
         await rec.finish('', false);
@@ -106,10 +107,20 @@ export function RecordView({ navigation }: any) {
 
       {confirming && (
         <ConfirmSheet
-          onSave={async () => { await rec.finish(confirming, true); setConfirming(null); navigation.goBack(); }}
+          onSave={async () => { await rec.finish(confirming, true, Number(steps) || undefined); setConfirming(null); navigation.goBack(); }}
           onRetake={async () => { await rec.finish(confirming, false); setConfirming(null); }}
           onDiscard={async () => { await rec.finish(confirming, false); setConfirming(null); navigation.goBack(); }}
         />
+      )}
+
+      {/* [실험용] 거리 정확도 검증 — 직접 센 걸음 수를 궤적에 같이 저장한다. 시트는 키보드에 가려지므로 위에 띄운다. */}
+      {__DEV__ && confirming && (
+        <View style={{ position: 'absolute', top, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6 }}>
+          <Text>[실험] 걸음 수</Text>
+          <TextInput value={steps} onChangeText={t => setSteps(t.replace(/[^0-9]/g, ''))} placeholder="예: 140"
+            keyboardType={Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'numeric'} returnKeyType="done"
+            style={{ minWidth: 80, borderBottomWidth: 1, borderColor: '#999', paddingVertical: 4, fontSize: 16 }} />
+        </View>
       )}
     </View>
   );
