@@ -9,8 +9,9 @@ dist/
 data/raw/
 data/out/
 
-# 비밀정보 — Stitch API 키가 들어 있다
+# 비밀정보 — Stitch API 키, 구글 지도 키
 .mcp.json
+.env
 
 # 개인 로컬 설정
 .claude/settings.local.json
