@@ -13,24 +13,42 @@
         "NSMicrophoneUsageDescription": "영상 촬영 시 사용됩니다.",
         "NSLocationWhenInUseUsageDescription": "촬영 경로를 기록하기 위해 위치를 사용합니다.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "주행 중 촬영 경로를 끊김 없이 기록하기 위해 위치를 항상 사용합니다.",
-        "UIBackgroundModes": ["location"]
+        "UIBackgroundModes": [
+          "location"
+        ]
       }
     },
     "android": {
       "package": "com.team.collector",
       "permissions": [
         "CAMERA",
-        "RECORD_AUDIO",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_BACKGROUND_LOCATION"
+        "ACCESS_COARSE_LOCATION"
       ]
     },
     "plugins": [
-      "expo-camera",
+      [
+        "expo-camera",
+        {
+          "recordAudioAndroid": false
+        }
+      ],
       "expo-location",
       "expo-video",
-      ["expo-screen-orientation", { "initialOrientation": "PORTRAIT_UP" }]
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "PORTRAIT_UP"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ]
   }
 }
