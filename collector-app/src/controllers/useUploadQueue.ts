@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 import { queue, type QueueItem } from '@/models/db';
 import { processQueue, retryFailed } from '@/models/uploader';
-import { loadToken } from '@/models/storage';
 
 export function useUploadQueue(auto = true) {
   const [items, setItems] = useState<QueueItem[]>([]);
@@ -13,17 +12,14 @@ export function useUploadQueue(auto = true) {
     setPending(await queue.pendingCount());
   }, []);
 
+  // 토큰은 uploader가 api.ts에서 직접 받는다 (access 토큰, 만료 시 갱신)
   const run = useCallback(async () => {
-    const token = await loadToken();
-    if (!token) return;
-    await processQueue(token, () => void refresh());
+    await processQueue(() => void refresh());
     await refresh();
   }, [refresh]);
 
   const retry = useCallback(async () => {
-    const token = await loadToken();
-    if (!token) return;
-    await retryFailed(token);
+    await retryFailed();
     await refresh();
   }, [refresh]);
 

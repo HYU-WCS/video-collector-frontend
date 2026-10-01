@@ -5,6 +5,10 @@ dist/
 *.log
 .DS_Store
 
+# 실험 데이터 — 실험 장소 좌표가 들어 있다 (data/README.md)
+data/raw/
+data/out/
+
 # 비밀정보 — Stitch API 키가 들어 있다
 .mcp.json
 

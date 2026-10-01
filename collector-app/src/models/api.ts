@@ -5,7 +5,7 @@ import type { BBox, RoadSegment, RoadStatus, User } from './types';
 // 응답 모양이 앱 타입과 다른 곳은 여기서 변환해, controllers는 mockApi와 같은 모양만 보게 한다.
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://166.104.36.71:8002/video-collector';
-const API = `${BASE_URL}/api/v1`;
+export const API = `${BASE_URL}/api/v1`;
 
 // access 토큰(15분)은 메모리에만, refresh 토큰은 SecureStore에 둔다 (storage.ts).
 let accessToken: string | null = null;
@@ -55,6 +55,14 @@ function refresh() {
     }).finally(() => { refreshing = null; });
   }
   return refreshing;
+}
+
+export const hasSession = () => refreshToken != null;
+
+/** fetch를 쓰지 않는 요청(업로드)용. renew면 지금 토큰을 버리고 새로 받는다 — 401을 받은 뒤. */
+export async function authHeader(renew = false): Promise<Record<string, string>> {
+  if ((renew || !accessToken) && refreshToken) await refresh();
+  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 }
 
 /** access 토큰이 없거나 만료(401)면 한 번 갱신하고 다시 보낸다. */

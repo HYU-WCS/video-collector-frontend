@@ -22,7 +22,7 @@ export async function getDb() {
       status        TEXT NOT NULL,      -- queued | uploading | done | failed
       progress      REAL DEFAULT 0,
       error         TEXT,
-      video_id      INTEGER,            -- 업로드 성공 후 서버가 준 id
+      video_id      TEXT,               -- 업로드 성공 후 서버가 준 id (UUID)
       created_at    INTEGER NOT NULL
     );
 
@@ -51,7 +51,7 @@ export interface QueueItem {
   status: UploadStatus;
   progress: number;
   error: string | null;
-  video_id: number | null;
+  video_id: string | null;
 }
 
 export const queue = {

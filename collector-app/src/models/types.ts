@@ -17,7 +17,7 @@ export interface TrajectoryPoint {
 }
 
 export interface Trajectory {
-  video_id?: number;
+  video_id?: string;
   local_id: string;
   recorded_at: string;
   sample_rate_sec: number;
@@ -26,7 +26,7 @@ export interface Trajectory {
 }
 
 export interface Video {
-  video_id: number;
+  video_id: string;      // 서버 UUID
   video_name: string;
   upload_date: string;
   duration_sec: number;
@@ -56,7 +56,7 @@ export interface CoverageCell {
 }
 
 export interface ClipTrace {
-  video_id: number;
+  video_id: string;
   status: RoadStatus;
   geometry: [number, number][];
 }

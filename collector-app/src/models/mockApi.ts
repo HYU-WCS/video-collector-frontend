@@ -23,14 +23,14 @@ export const mockRoads: RoadSegment[] = [
 ];
 
 export const mockClips: ClipTrace[] = [
-  { video_id: 1042, status: 'pending', geometry: line(5, 0.0003, 0.0004) },
+  { video_id: '1042', status: 'pending', geometry: line(5, 0.0003, 0.0004) },
 ];
 
 export const mockVideos: Video[] = [
-  { video_id: 1042, video_name: 'clip_1042.mp4', upload_date: '2026-09-20T13:47:00+09:00', duration_sec: 18, distance_m: 112, review: 'pending', superseded: false, upload: 'done' },
-  { video_id: 1041, video_name: 'clip_1041.mp4', upload_date: '2026-09-20T13:44:00+09:00', duration_sec: 21, distance_m: 130, review: 'rejected', reject_reason: 'GPS 이상', reviewed_at: '2026-09-22T18:30:00+09:00', superseded: false, upload: 'done' },
-  { video_id: 1038, video_name: 'clip_1038.mp4', upload_date: '2026-09-19T15:01:00+09:00', duration_sec: 17, distance_m: 104, review: 'rejected', reject_reason: '화질 불량', reviewed_at: '2026-09-20T10:12:00+09:00', superseded: true, upload: 'done' },
-  { video_id: 1037, video_name: 'clip_1037.mp4', upload_date: '2026-09-19T14:58:00+09:00', duration_sec: 19, distance_m: 118, review: 'accepted', superseded: false, upload: 'done' },
+  { video_id: '1042', video_name: 'clip_1042.mp4', upload_date: '2026-09-20T13:47:00+09:00', duration_sec: 18, distance_m: 112, review: 'pending', superseded: false, upload: 'done' },
+  { video_id: '1041', video_name: 'clip_1041.mp4', upload_date: '2026-09-20T13:44:00+09:00', duration_sec: 21, distance_m: 130, review: 'rejected', reject_reason: 'GPS 이상', reviewed_at: '2026-09-22T18:30:00+09:00', superseded: false, upload: 'done' },
+  { video_id: '1038', video_name: 'clip_1038.mp4', upload_date: '2026-09-19T15:01:00+09:00', duration_sec: 17, distance_m: 104, review: 'rejected', reject_reason: '화질 불량', reviewed_at: '2026-09-20T10:12:00+09:00', superseded: true, upload: 'done' },
+  { video_id: '1037', video_name: 'clip_1037.mp4', upload_date: '2026-09-19T14:58:00+09:00', duration_sec: 19, distance_m: 118, review: 'accepted', superseded: false, upload: 'done' },
 ];
 
 const delay = <T,>(v: T, ms = 300) => new Promise<T>(r => setTimeout(() => r(v), ms));
@@ -52,5 +52,5 @@ export const mockApi = {
       (!params.reviewed_after || (v.reviewed_at ?? '') > params.reviewed_after)),
     next_cursor: null,
   }),
-  video: (id: number) => delay(mockVideos.find(v => v.video_id === id)!),
+  video: (id: string) => delay(mockVideos.find(v => v.video_id === id)!),
 };
