@@ -49,6 +49,12 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e4bfdfd8-a9e8-4f3d-b2a0-a61182ae8453"
+      }
+    },
+    "owner": "dong11ro"
   }
 }
