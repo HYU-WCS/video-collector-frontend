@@ -100,6 +100,15 @@ export function RecordView({ navigation }: any) {
         </View>
       )}
 
+      {/* 녹화 전 GPS 안정 대기 — 버튼 바로 옆에 이유와 남은 시간을 보여준다 */}
+      {!rec.recording && !rec.ready && rec.gps !== 'none' && (
+        <View style={{ position: 'absolute', right: insets.right + 24, top: '50%', marginTop: 44, width: 120, marginRight: -24, alignItems: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: 12, textAlign: 'center', backgroundColor: '#000A', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 3 }}>
+            GPS 잡는 중 ±{Math.round(rec.accuracy ?? 0)}m{'\n'}최대 {rec.readyWaitLeft}초
+          </Text>
+        </View>
+      )}
+
       <Pressable onPress={onPress} disabled={!rec.canRecord && !rec.recording}
         // 가로로 쥐었을 때 오른손 엄지 자리 — 우측 중앙
         style={{ position: 'absolute', right: insets.right + 24, top: '50%', marginTop: -36, width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#fff',

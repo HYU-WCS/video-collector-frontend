@@ -16,6 +16,10 @@ const GPS_STALL_MS = 5000;     // 이만큼 위치가 안 오면 구독을 다�
 const BACKUP_EVERY = 10;       // 10초마다 임시 저장 — 앱이 죽어도 손실은 10초치
 const GPS_WARN_M = 15;
 const GPS_BLOCK_M = 40;
+// 녹화 전 GPS 안정 대기. 화면에 들어온 직후엔 정확도가 22~24m로 나오다 10~30초 뒤 좋아진다.
+// 그 상태로 찍기 시작하면 출발 구간 궤적이 부정확하다. 단 실내·빌딩 숲에서 영영 못 찍지 않게 상한을 둔다.
+const READY_M = 20;
+const READY_WAIT_SEC = 30;
 
 export type GpsQuality = 'good' | 'weak' | 'none';
 
@@ -28,6 +32,7 @@ export function useRecorder() {
   const [gps, setGps] = useState<GpsQuality>('none');
   const [accuracy, setAccuracy] = useState<number | null>(null);
   const [position, setPosition] = useState<[number, number] | null>(null);   // [lat, lon] — 미니맵 중심
+  const [settled, setSettled] = useState(false);   // 한 번 READY_M 안으로 들어오면 이후 흔들려도 유지
   // [임시 진단] 실외 보행 시 GPS 업데이트가 멈추는 원인 추적용. 원인 확인되면 지운다.
   const [fixes, setFixes] = useState(0);
   const [lastFixAt, setLastFixAt] = useState<number | null>(null);
@@ -37,6 +42,7 @@ export function useRecorder() {
   const dist = useRef(initialDistance());
   const lastFixRef = useRef(0);
   const granted = useRef(false);
+  const enteredAt = useRef(Date.now());
   const startedAt = useRef<number>(0);
   const localId = useRef<string>('');
   const sub = useRef<Location.LocationSubscription | null>(null);
@@ -89,6 +95,7 @@ export function useRecorder() {
     setLastFixAt(Date.now());
     lastFixRef.current = Date.now();
     setGps(acc <= GPS_WARN_M ? 'good' : acc <= GPS_BLOCK_M ? 'weak' : 'none');
+    if (acc <= READY_M) setSettled(true);
 
     if (!startedAt.current) return;
 
@@ -156,11 +163,15 @@ export function useRecorder() {
     return id;
   }, [distance]);
 
+  const waited = Math.floor((now - enteredAt.current) / 1000);
+  const ready = settled || waited >= READY_WAIT_SEC;
+
   return {
     recording, distance, gps, accuracy, position,
+    ready, readyWaitLeft: Math.max(0, READY_WAIT_SEC - waited),
     elapsed: recording && startedAt.current ? Math.floor((now - startedAt.current) / 1000) : 0,
     diag: { fixes, resubs, lastFixAgo: lastFixAt ? Math.round((now - lastFixAt) / 1000) : null },
-    canRecord: gps !== 'none',
+    canRecord: gps !== 'none' && ready,
     trail: points.current,
     start, finish,
   };
