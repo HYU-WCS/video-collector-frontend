@@ -56,7 +56,10 @@ export function RecordView({ navigation }: any) {
     <View style={{ flex: 1, backgroundColor: '#000' }}>
       {/* 소리는 담지 않는다 — 도로 데이터에 불필요하고 행인 대화가 녹음된다. 마이크 권한도 필요 없어진다. */}
       {/* 뷰를 영상과 같은 16:9로 맞춘다. flex: 1이면 미리보기가 화면을 채우려고 위아래를 잘라 실제 녹화보다 좁게 보인다. */}
-      <CameraView ref={cam} style={{ height: '100%', aspectRatio: 16 / 9, alignSelf: 'center' }} facing="back" mode="video" mute />
+      {/* iOS는 녹화 시작 순간의 기기 방향으로 영상 방향을 정한다. 세로 고정을 켜 두면 늘 portrait로 읽혀
+          가로로 찍어도 영상이 90° 누운 세로 영상이 된다. 가속도계로 실제 방향을 읽게 한다. */}
+      <CameraView ref={cam} style={{ height: '100%', aspectRatio: 16 / 9, alignSelf: 'center' }} facing="back" mode="video" mute
+        responsiveOrientationWhenOrientationLocked />
       <StatusBar hidden />
 
       {/* 녹화 중엔 나가지 못하게 숨긴다. 끊으려면 정지 → 폐기. */}
