@@ -141,6 +141,12 @@ export const api = {
     );
     return { roads: r.features.map(toRoad), truncated: r.next_cursor != null };
   },
+
+  /** 재생용 임시 주소. 서버는 호스트 없이 `/video-collector/api/v1/...?token=`을 준다. */
+  playbackUrl: async (videoId: string) => {
+    const r = await request<{ url: string }>(`/videos/${videoId}/playback-token`, { method: 'POST' });
+    return BASE_URL.match(/^https?:\/\/[^/]+/)![0] + r.url;
+  },
 };
 
 export { BASE_URL };

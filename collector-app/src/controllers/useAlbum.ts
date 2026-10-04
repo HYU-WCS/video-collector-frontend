@@ -1,14 +1,30 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Image } from 'react-native';
 import { mockApi } from '@/models/mockApi';
+import { localThumbnail, readTrajectory } from '@/models/storage';
 import type { Video } from '@/models/types';
 
 const source = mockApi;
+
+export type AlbumItem = Video & {
+  trail: [number, number][] | null;   // [lat, lon][] — 이 폰에서 찍은 클립만 있다
+  thumb: string | null;               // 첫 프레임 jpg
+  thumbSideways: boolean;             // 세로로 저장된 옛 클립 — 화면에서 -90° 돌린다
+};
+
+// 서버 파일명이 `${local_id}.mp4`라서 이걸로 로컬 궤적·썸네일을 찾는다.
+async function withLocal(v: Video): Promise<AlbumItem> {
+  const localId = v.video_name.replace(/\.\w+$/, '');
+  const [traj, thumb] = await Promise.all([readTrajectory(localId), localThumbnail(localId)]);
+  const thumbSideways = thumb ? await Image.getSize(thumb).then(s => s.height > s.width, () => false) : false;
+  return { ...v, trail: traj?.points.map(p => [p.lat, p.lon]) ?? null, thumb, thumbSideways };
+}
 
 export type AlbumFilter = 'all' | 'pending' | 'rejected' | 'failed';
 
 // 수천 건이 쌓이므로 offset이 아니라 커서로 넘긴다.
 export function useAlbum(filter: AlbumFilter = 'all') {
-  const [items, setItems] = useState<Video[]>([]);
+  const [items, setItems] = useState<AlbumItem[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -18,7 +34,8 @@ export function useAlbum(filter: AlbumFilter = 'all') {
     setLoading(true);
     try {
       const res = await source.videos(reset ? {} : { cursor: cursor! });
-      setItems(prev => (reset ? res.items : [...prev, ...res.items]));
+      const page = await Promise.all(res.items.map(withLocal));
+      setItems(prev => (reset ? page : [...prev, ...page]));
       setCursor(res.next_cursor);
       setDone(!res.next_cursor);
     } finally {

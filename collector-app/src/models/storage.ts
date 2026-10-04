@@ -1,6 +1,7 @@
 // SDK 54+에서 기존 API는 legacy로 옮겨졌다. 새 File/Directory API 이전은 실기기 검증 후.
 import * as FileSystem from 'expo-file-system/legacy';
 import * as SecureStore from 'expo-secure-store';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 import type { Trajectory } from './types';
 
 // 영상은 핸드폰 앨범(사진 앱)에 저장하지 않는다.
@@ -15,6 +16,7 @@ export async function ensureDirs() {
 
 export const videoPath = (localId: string) => `${PENDING_DIR}${localId}.mp4`;
 export const trajPath  = (localId: string) => `${PENDING_DIR}${localId}.json`;
+export const thumbPath = (localId: string) => `${PENDING_DIR}${localId}.jpg`;
 
 /** 카메라 캐시에 있는 영상을 앱 저장소로 옮긴다. 캐시는 OS가 예고 없이 비운다. */
 export async function adoptRecording(cacheUri: string, localId: string) {
@@ -34,6 +36,32 @@ export async function writeTrajectory(localId: string, traj: Trajectory) {
 export async function readTrajectory(localId: string): Promise<Trajectory | null> {
   try {
     return JSON.parse(await FileSystem.readAsStringAsync(trajPath(localId)));
+  } catch {
+    return null;
+  }
+}
+
+/** 첫 프레임을 썸네일로 남긴다. 영상은 업로드 후 지워지므로 촬영 직후에 뽑아야 한다 (D1). */
+export async function saveThumbnail(localId: string, videoUri: string) {
+  const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, { time: 0, quality: 0.5 });
+  await FileSystem.moveAsync({ from: uri, to: thumbPath(localId) });
+}
+
+/** 회전 메타데이터까지 반영한 첫 프레임이 세로인가. 세로 고정 상태로 찍힌 옛 클립 판별용 (원격 주소도 된다). */
+export async function isPortraitVideo(uri: string) {
+  const { width, height } = await VideoThumbnails.getThumbnailAsync(uri, { time: 0, quality: 0.1 });
+  return height > width;
+}
+
+/** 없으면 null. 업로드돼 영상이 지워진 클립과 다른 기기에서 찍은 클립은 만들 수 없다. */
+export async function localThumbnail(localId: string) {
+  const p = thumbPath(localId);
+  if ((await FileSystem.getInfoAsync(p)).exists) return p;
+  // 썸네일 기능 전에 찍었지만 아직 업로드 전이라 영상이 남아 있으면 지금 뽑는다
+  if (!(await FileSystem.getInfoAsync(videoPath(localId))).exists) return null;
+  try {
+    await saveThumbnail(localId, videoPath(localId));
+    return p;
   } catch {
     return null;
   }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Polyline } from 'react-native-maps';
 import { useCoverage } from '@/controllers/useCoverage';
@@ -116,6 +116,41 @@ export function MiniMap({ roads, position, trail }: {
           <Polyline coordinates={trail.map(p => ({ latitude: p.lat, longitude: p.lon }))}
             strokeColor={Color.accent} strokeWidth={3} />
         )}
+      </MapView>
+    </View>
+  );
+}
+
+/**
+ * 앨범 썸네일·영상 상세의 정적 궤적 지도. Android는 liteMode라 지도 엔진이 아니라 정적 비트맵 한 장이다.
+ * iOS는 liteMode가 없어 진짜 지도가 뜬다 — 목록 쪽 windowSize로 동시에 뜨는 수를 줄인다.
+ */
+export function TrailThumb({ trail, color, style }: { trail: [number, number][]; color: string; style: ViewStyle }) {
+  const lats = trail.map(p => p[0]), lons = trail.map(p => p[1]);
+  const [minLat, maxLat, minLon, maxLon] = [Math.min(...lats), Math.max(...lats), Math.min(...lons), Math.max(...lons)];
+  // 정지 클립은 범위가 0이라 최소 폭(약 200m)을 둔다. 1.4배는 선이 가장자리에 붙지 않게 하는 여백.
+  const region = {
+    latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2,
+    latitudeDelta: Math.max((maxLat - minLat) * 1.4, 0.002),
+    longitudeDelta: Math.max((maxLon - minLon) * 1.4, 0.002),
+  };
+
+  // pointerEvents none: lite 지도를 탭하면 구글 지도 앱이 열린다. 탭은 목록 행이 받는다.
+  return (
+    <View pointerEvents="none" style={[{ borderRadius: 8, overflow: 'hidden' }, style]}>
+      <MapView
+        style={{ flex: 1 }}
+        liteMode
+        initialRegion={region}
+        showsPointsOfInterests={false}
+        scrollEnabled={false}
+        zoomEnabled={false}
+        rotateEnabled={false}
+        pitchEnabled={false}
+        toolbarEnabled={false}
+      >
+        <Polyline coordinates={trail.map(([latitude, longitude]) => ({ latitude, longitude }))}
+          strokeColor={color} strokeWidth={3} />
       </MapView>
     </View>
   );

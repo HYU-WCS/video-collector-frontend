@@ -1,3 +1,5 @@
+import { initialDistance, shownDistance, stepDistance } from './distance';
+import { listTrajectories } from './storage';
 import type { BBox, ClipTrace, Progress, RoadSegment, Video } from './types';
 
 // 백엔드가 준비되기 전까지 화면 개발용으로 쓰는 가짜 응답.
@@ -33,6 +35,20 @@ export const mockVideos: Video[] = [
   { video_id: '1037', video_name: 'clip_1037.mp4', upload_date: '2026-09-19T14:58:00+09:00', duration_sec: 19, distance_m: 118, review: 'accepted', superseded: false, upload: 'done' },
 ];
 
+// 폰에 남아 있는 실제 클립을 업로드된 영상처럼 보여준다. 앨범 썸네일을 실기기에서 확인하려고.
+async function localVideos(): Promise<Video[]> {
+  return (await listTrajectories()).reverse().map(t => ({
+    video_id: t.local_id,
+    video_name: `${t.local_id}.mp4`,
+    upload_date: t.recorded_at,
+    duration_sec: t.points.at(-1)?.t ?? 0,
+    distance_m: Math.round(shownDistance(t.points.reduce(stepDistance, initialDistance()))),
+    review: 'pending',
+    superseded: false,
+    upload: 'done',
+  }));
+}
+
 const delay = <T,>(v: T, ms = 300) => new Promise<T>(r => setTimeout(() => r(v), ms));
 
 export const mockApi = {
@@ -46,11 +62,11 @@ export const mockApi = {
   coverage: () => delay({ cells: [] }),
   roads: (_b: BBox, _limit?: number) => delay({ roads: mockRoads, truncated: false }),
   clips: () => delay({ clips: mockClips }),
-  videos: (params: { status?: string; reviewed_after?: string; cursor?: string } = {}) => delay({
-    items: mockVideos.filter(v =>
+  videos: async (params: { status?: string; reviewed_after?: string; cursor?: string } = {}) => delay({
+    items: [...await localVideos(), ...mockVideos].filter(v =>
       (!params.status || v.review === params.status) &&
       (!params.reviewed_after || (v.reviewed_at ?? '') > params.reviewed_after)),
     next_cursor: null,
   }),
-  video: (id: string) => delay(mockVideos.find(v => v.video_id === id)!),
+  video: async (id: string) => delay([...await localVideos(), ...mockVideos].find(v => v.video_id === id) ?? null),
 };

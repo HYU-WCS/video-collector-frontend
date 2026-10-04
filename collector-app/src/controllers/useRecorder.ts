@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Location from 'expo-location';
 import { useKeepAwake } from 'expo-keep-awake';
-import { adoptRecording, writeTrajectory } from '@/models/storage';
+import { adoptRecording, saveThumbnail, writeTrajectory } from '@/models/storage';
 import { queue } from '@/models/db';
 import { initialDistance, shownDistance, stepDistance } from '@/models/distance';
 import type { TrajectoryPoint } from '@/models/types';
@@ -160,6 +160,8 @@ export function useRecorder() {
       duration_sec: durationSec,
       distance_m: Math.round(distance),
     });
+    // 썸네일 실패가 업로드를 막으면 안 된다. 큐에 넣은 뒤에 뽑는다.
+    await saveThumbnail(id, videoPath).catch(e => console.warn('[thumb]', e));
     return id;
   }, [distance]);
 
