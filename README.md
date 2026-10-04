@@ -46,7 +46,6 @@ MVC를 요구받았으나 React Native에서 고전적 MVC는 맞지 않아, 역
 
 각 controller 상단의 `const source = mockApi`가 데이터 출처입니다. 서버 API가 준비된 곳부터 `api`로 바꿉니다.
 
-`scripts/`는 앱 코드가 아니라 **노트북에서 실행하는 개발 도구**입니다. 아래 [개발 스크립트](#개발-스크립트)를 참고하세요.
 
 ## 현재 구현
 
@@ -76,35 +75,8 @@ MVC를 요구받았으나 React Native에서 고전적 MVC는 맞지 않아, 역
 
 ## 개발 스크립트
 
-`scripts/`의 파일은 앱 번들에 포함되지 않습니다. 앱 번들러(Metro)는 `index.js`에서 import로 이어진 파일만 묶는데, `src/`는 `scripts/`를 import하지 않습니다. 반대로 스크립트는 `src/models/distance.ts`를 직접 import하므로, 앱과 **같은 거리 계산 코드**를 검증합니다.
-
-모든 명령은 `collector-app/`에서 실행합니다.
-
-### 거리 로직 시뮬레이션
-
-합성 GPS(노이즈·정지·모퉁이·점프)를 만들어 `distance.ts`가 실제 걸은 거리에 가깝게 나오는지 확인합니다. **`distance.ts`를 고치면 다시 돌려 주세요.** 난수 시드가 고정되어 있어 결과가 매번 같습니다.
-
-| 파일 | 확인하는 것 | 실행 |
-|---|---|---|
-| `sim-distance.ts` | 기존/새 누적 방식 비교 — 노이즈, 정지, 모퉁이, 한 번 튀는 점 | `npx tsx scripts/sim-distance.ts` |
-| `sim-gate.ts` | 정확도 문턱(`MAX_ACC_M`) 20m vs 25m — 부정확한 구간이 섞일 때 | `npx tsx scripts/sim-gate.ts` |
-| `sim-stop.ts` | 멈출 때 화면 거리가 줄어드는 문제 (2026-09-25 제보) | `npx tsx scripts/sim-stop.ts [이전 distance.ts 경로]` |
-
-### 실기기 궤적 분석
-
-앱 홈 화면의 **[개발] 궤적 내보내기**로 받은 파일을 `data/raw/`에 넣고 실행합니다. 데이터 형식과 폴더 규칙은 [data/README.md](data/README.md)에 있습니다.
-
-```bash
-npx tsx scripts/analyze-runs.ts --since 2026-10-01 --json ../data/out/runs.json
-python3 scripts/plot-runs.py ../data/out/runs.json ../data/out/runs.png --new
-```
-
-| 파일 | 하는 일 | 주요 옵션 |
-|---|---|---|
-| `analyze-runs.ts` | 내보낸 파일들을 `local_id`로 합쳐, 촬영마다 앱 거리를 걸음 수 기준 거리(걸음 × 보폭)와 비교한 표를 출력합니다 | `--since 날짜`, `--stride 보폭(m, 기본 0.6)`, `--json 출력경로` |
-| `plot-runs.py` | `analyze-runs.ts --json` 결과로 촬영별 궤적 모양을 그립니다 (matplotlib) | `--new` 새 촬영만, `--nodes` 점마다 시간 색 |
-
-`data/raw/`에는 실험 장소 좌표가 그대로 들어 있어 git에서 제외합니다.
+거리 로직 시뮬레이션과 실기기 궤적 분석 스크립트(`collector-app/scripts/`)는 앱 코드가 아니라서 main에 두지 않고 **`test` 브랜치**에 둡니다.
+사용법은 그 브랜치의 README를 보세요. `distance.ts`를 고치면 `test` 브랜치에서 시뮬레이션을 다시 돌려 주세요.
 
 ## 문서
 

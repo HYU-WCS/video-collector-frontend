@@ -21,10 +21,6 @@
 
 ## 분석
 
-```bash
-cd collector-app
-npx tsx scripts/analyze-runs.ts --since 2026-10-01 --json ../data/out/runs.json   # 표
-python3 scripts/plot-runs.py ../data/out/runs.json ../data/out/runs.png --new      # 모양 (--nodes: 점별 시간)
-```
+분석 스크립트(`analyze-runs.ts`, `plot-runs.py`)는 **`test` 브랜치**에 있다 (`git switch test`).
 
 보폭 기본값 0.6m (`--stride`로 변경). 장소 메모(단지/큰길, 코스 모양)는 파일에 없으니 촬영자에게 받는다.
