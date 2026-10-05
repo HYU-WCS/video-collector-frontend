@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Pressable, Text, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MapView, { Marker, Polygon, Polyline } from 'react-native-maps';
+import MapView, { Circle, Marker, Polygon, Polyline } from 'react-native-maps';
 import { useCoverage } from '@/controllers/useCoverage';
 import { Color, StatusColor, StatusLabel } from '@/theme/colors';
 import type { RoadSegment, TrajectoryPoint } from '@/models/types';
@@ -85,12 +85,11 @@ export function MiniMap({ roads, position, trail }: {
   }, [lat, lon]);
 
   return (
-    <View pointerEvents="none" style={{ width: 150, height: 150, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#FFF6' }}>
+    <View pointerEvents="none" style={{ width: 120, height: 120, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#FFF6' }}>
       <MapView
         ref={ref}
         style={{ flex: 1 }}
         initialRegion={{ latitude: lat, longitude: lon, latitudeDelta: 0.004, longitudeDelta: 0.004 }}
-        showsUserLocation
         showsPointsOfInterests={false}
         scrollEnabled={false}
         zoomEnabled={false}
@@ -107,6 +106,8 @@ export function MiniMap({ roads, position, trail }: {
           <Polyline coordinates={trail.map(p => ({ latitude: p.lat, longitude: p.lon }))}
             strokeColor={Color.accent} strokeWidth={3} />
         )}
+        {/* 기본 내 위치 점은 정확도 원까지 그려 작은 지도에서 너무 크다. 반경 15m ≈ 지름 8px */}
+        <Circle center={{ latitude: lat, longitude: lon }} radius={15} fillColor={Color.accent} strokeColor="#fff" strokeWidth={2} />
       </MapView>
     </View>
   );

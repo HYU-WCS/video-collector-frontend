@@ -9,10 +9,19 @@ const THUMB = 72;
 const blank = { width: THUMB, height: THUMB, borderRadius: 8, backgroundColor: Color.surface };
 
 export function AlbumView({ navigation }: any) {
-  const { items, loading, loadMore } = useAlbum();
+  const { items, loading, loadMore, unuploaded, uploading, upload } = useAlbum();
 
   return (
     <Screen title="앨범" scroll={false}>
+      {unuploaded > 0 && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 8, padding: 12, borderRadius: 12, backgroundColor: Color.surface }}>
+          <Text style={{ flex: 1 }}>업로드 안 된 클립 {unuploaded}개</Text>
+          <Pressable onPress={upload} disabled={uploading}
+            style={{ backgroundColor: Color.accent, borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8, opacity: uploading ? 0.5 : 1 }}>
+            <Text style={{ color: '#fff', fontWeight: '600' }}>{uploading ? '올리는 중…' : '업로드'}</Text>
+          </Pressable>
+        </View>
+      )}
       <FlatList
         data={items}
         keyExtractor={v => String(v.video_id)}
@@ -36,7 +45,11 @@ export function AlbumView({ navigation }: any) {
               <Text style={{ fontSize: 12, color: Color.textMuted }}>
                 {item.upload_date.slice(2, 16).replace('T', ' ')} · {item.duration_sec}초 · {item.distance_m}m
               </Text>
-              <StatusBadge status={item.review} superseded={item.superseded} />
+              {item.upload === 'done'
+                ? <StatusBadge status={item.review} superseded={item.superseded} />
+                : <Text style={{ fontSize: 12, color: item.upload === 'failed' ? StatusColor.rejected : Color.accent }}>
+                    {item.upload === 'failed' ? '업로드 실패' : item.upload === 'uploading' ? '업로드 중' : '업로드 안 됨'}
+                  </Text>}
             </View>
           </Pressable>
         )}

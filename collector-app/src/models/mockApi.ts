@@ -1,4 +1,5 @@
 import { initialDistance, shownDistance, stepDistance } from './distance';
+import { queue } from './db';
 import { listTrajectories } from './storage';
 import dongs from './data/dongs.json';
 import type { BBox, ClipTrace, DongCoverage, Progress, RoadSegment, Video } from './types';
@@ -34,6 +35,7 @@ export const mockVideos: Video[] = [
 
 // 폰에 남아 있는 실제 클립을 업로드된 영상처럼 보여준다. 앨범 썸네일을 실기기에서 확인하려고.
 async function localVideos(): Promise<Video[]> {
+  const upload = new Map((await queue.list()).map(q => [q.local_id, q.status]));
   return (await listTrajectories()).reverse().map(t => ({
     video_id: t.local_id,
     video_name: `${t.local_id}.mp4`,
@@ -42,7 +44,7 @@ async function localVideos(): Promise<Video[]> {
     distance_m: Math.round(shownDistance(t.points.reduce(stepDistance, initialDistance()))),
     review: 'pending',
     superseded: false,
-    upload: 'done',
+    upload: upload.get(t.local_id) ?? 'done',   // 큐에 없으면 이미 올라간 것으로 본다
   }));
 }
 

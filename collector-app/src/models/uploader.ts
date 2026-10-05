@@ -11,7 +11,7 @@ let running = false;
 
 // 실제 서버 업로드는 아직 끈다 — 테스트 계정, 그리고 테스트 영상을 지울 방법(서버에 삭제 API가 없다)이 정해진 뒤에.
 // 켜기 전에 성동구 안에서 촬영할 것 — 서버 도로 데이터가 성동구뿐이다.
-const UPLOAD_ENABLED = false;
+export const UPLOAD_ENABLED = false;
 
 export async function processQueue(onProgress?: (localId: string, ratio: number) => void): Promise<void> {
   if (!UPLOAD_ENABLED || running || !hasSession()) return;

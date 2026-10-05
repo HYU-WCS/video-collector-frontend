@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Image } from 'react-native';
 import { mockApi } from '@/models/mockApi';
+import { useUploadQueue } from '@/controllers/useUploadQueue';
 import { localThumbnail, readTrajectory } from '@/models/storage';
 import type { Video } from '@/models/types';
 
@@ -20,6 +21,9 @@ async function withLocal(v: Video): Promise<AlbumItem> {
   return { ...v, trail: traj?.points.map(p => [p.lat, p.lon]) ?? null, thumb, thumbSideways };
 }
 
+/** 안 올라간 클립은 항상 맨 위 (D21). 나머지 순서는 그대로 */
+const pinUnuploaded = (a: AlbumItem[]) => [...a.filter(v => v.upload !== 'done'), ...a.filter(v => v.upload === 'done')];
+
 export type AlbumFilter = 'all' | 'pending' | 'rejected' | 'failed';
 
 // 수천 건이 쌓이므로 offset이 아니라 커서로 넘긴다.
@@ -35,7 +39,7 @@ export function useAlbum(filter: AlbumFilter = 'all') {
     try {
       const res = await source.videos(reset ? {} : { cursor: cursor! });
       const page = await Promise.all(res.items.map(withLocal));
-      setItems(prev => (reset ? page : [...prev, ...page]));
+      setItems(prev => pinUnuploaded(reset ? page : [...prev, ...page]));
       setCursor(res.next_cursor);
       setDone(!res.next_cursor);
     } finally {
@@ -45,5 +49,14 @@ export function useAlbum(filter: AlbumFilter = 'all') {
 
   useEffect(() => { setDone(false); void load(true); }, [filter]);
 
-  return { items, loading, done, cursor, loadMore: () => load(false), refresh: () => load(true) };
+  const q = useUploadQueue();
+  const upload = useCallback(async () => {
+    await q.uploadNow();
+    await load(true);
+  }, [q.uploadNow, load]);
+
+  return {
+    items, loading, done, cursor, loadMore: () => load(false), refresh: () => load(true),
+    unuploaded: q.pending, uploading: q.uploading, upload,
+  };
 }
