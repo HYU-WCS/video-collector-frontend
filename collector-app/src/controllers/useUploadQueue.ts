@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Network from 'expo-network';
 import { queue, type QueueItem } from '@/models/db';
-import { UPLOAD_ENABLED, processQueue, retryFailed } from '@/models/uploader';
+import { UPLOAD_ENABLED, isUploading, onQueueChange, processQueue } from '@/models/uploader';
 
 const confirm = (title: string, message: string, ok: string) => new Promise<boolean>(resolve =>
   Alert.alert(title, message, [
@@ -15,7 +15,7 @@ const confirm = (title: string, message: string, ok: string) => new Promise<bool
 export function useUploadQueue() {
   const [items, setItems] = useState<QueueItem[]>([]);
   const [pending, setPending] = useState(0);
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState(isUploading());
 
   const refresh = useCallback(async () => {
     setItems(await queue.list());
@@ -39,22 +39,17 @@ export function useUploadQueue() {
       Alert.alert('업로드', '서버 업로드는 아직 꺼져 있어요. 테스트 계정이 정해지면 켭니다.');
       return;
     }
-    setUploading(true);
-    try {
-      await processQueue(() => void refresh());
-    } finally {
-      setUploading(false);
-      await refresh();
-    }
+    await processQueue();
+  }, []);
+
+  // 실패한 것도 대기와 같이 올린다 — 서버가 받은 곳부터 이어 간다
+  const retry = uploadNow;
+
+  // 업로드는 화면과 상관없이 돈다(앱이 다시 앞으로 오면 이어 가기도 한다). 진행을 구독해서 그린다
+  useEffect(() => {
+    void refresh();
+    return onQueueChange(() => { setUploading(isUploading()); void refresh(); });
   }, [refresh]);
-
-  // 예전엔 상태만 되돌리고 자동 업로드에 맡겼다. 이제 자동이 없으니 바로 올린다
-  const retry = useCallback(async () => {
-    await retryFailed();
-    await uploadNow();
-  }, [uploadNow]);
-
-  useEffect(() => { void refresh(); }, [refresh]);
 
   return { items, pending, uploading, refresh, uploadNow, retry };
 }

@@ -21,8 +21,13 @@ export function UploadQueueView() {
                 <View style={{ height: 3, width: `${Math.round(it.progress * 100)}%`, backgroundColor: Color.accent, borderRadius: 2 }} />
               </View>
             )}
-            {it.status === 'failed' && (
-              <Text style={{ fontSize: 12, color: StatusColor.rejected, marginTop: 6 }}>실패 · {it.error}</Text>
+            {it.status !== 'done' && (it.processing_status === 'uploaded' || it.processing_status === 'processing') && (
+              <Text style={{ fontSize: 12, color: Color.textMuted, marginTop: 6 }}>서버에서 영상 확인 중 — 끝나면 폰에서 지워요</Text>
+            )}
+            {it.error && (
+              <Text style={{ fontSize: 12, color: StatusColor.rejected, marginTop: 6 }}>
+                {it.status === 'failed' ? `실패 · ${it.error}` : it.error}
+              </Text>
             )}
           </View>
         ))}

@@ -143,7 +143,7 @@ POST /api/review/rollback  { confirm_id }
 | 로그인 | `POST /auth/login {username,password,client_type}` → `{access_token, user{username, role}, …}` | access + refresh 토큰. `POST /auth/refresh`, `/auth/logout` |
 | 회원가입 | `POST /auth/register {username, password}` → 201 (10.05 추가) | 토큰을 주는지 문서에 없어 앱은 가입 뒤 바로 login을 부른다. 항상 수집가 권한 |
 | 내 정보·진척도 | `GET /users/me`, `GET /users/me/progress` | 진척도 응답 모양 미확인 |
-| 업로드 | `POST /videos` multipart `file`, `trajectory`(파일, 선택) + `Idempotency-Key` 헤더 → 202 | 메타(recorded_at 등) 필드 없음 — 서버가 파일에서 뽑는 듯. 비동기 처리(`processing_status`: uploaded→processing→ready/failed) |
+| 업로드 | **재개 업로드 `/upload-sessions` (D22)**. 이전: `POST /videos` multipart `file`, `trajectory`(파일, 선택) + `Idempotency-Key` 헤더 → 202 | 메타(recorded_at 등) 필드 없음 — 서버가 파일에서 뽑는 듯. 비동기 처리(`processing_status`: uploaded→processing→ready/failed) |
 | 앨범 | `GET /videos?scope=mine&processing_status=&unlinked=&cursor=&limit=` → `{items, next_cursor}` | 커서 페이지네이션 ✓. **검수 상태(반려) 필터 없음** |
 | 영상 상세 | `GET /videos/{id}` → `size_bytes, duration_ms, upload_date, processing_status…` | |
 | 재생 | `POST /videos/{id}/playback-token` → `{url, expires_in}` | signed URL 방식 ✓ |

@@ -1,7 +1,7 @@
 import type { BBox, RoadSegment, RoadStatus, User } from './types';
 
 // 실제 백엔드: 팀원이 만든 video-collector (docs/04-api.md "실제 백엔드").
-// 지금 연결된 건 로그인·가입·지도(도로)뿐. 앨범·업로드·진척도는 수집가 계정과 궤적 형식이 정해진 뒤.
+// 지금 연결된 건 로그인·가입·업로드·지도(도로)뿐. 앨범·진척도는 수집가 계정과 궤적 형식이 정해진 뒤.
 // 응답 모양이 앱 타입과 다른 곳은 여기서 변환해, controllers는 mockApi와 같은 모양만 보게 한다.
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://166.104.36.71:8002/video-collector';
@@ -22,6 +22,17 @@ export const onSessionExpired = (fn: () => void) => { onUnauthorized = fn; };
 export class ApiError extends Error {
   constructor(message: string, public status: number) { super(message); }
 }
+
+export interface UploadSession {
+  upload_id: string;
+  size_bytes: number;
+  received_bytes: number;   // 서버가 받은 바이트 = 다음에 보낼 위치
+  status: 'created' | 'uploading' | 'uploaded' | 'verifying' | 'completed' | 'failed';
+  chunk_size: number;
+  video_id: string | null;
+}
+
+export type ProcessingStatus = 'uploaded' | 'processing' | 'ready' | 'failed';
 
 interface AuthResponse { access_token: string; refresh_token: string; expires_in: number; user: User }
 
@@ -147,6 +158,23 @@ export const api = {
     );
     return { roads: r.features.map(toRoad), truncated: r.next_cursor != null };
   },
+
+  // --- 재개 업로드. 청크 PATCH는 파일 업로드라 uploader.ts가 직접 보낸다 ---
+
+  /** 같은 키·같은 파일 정보면 서버가 기존 세션을 돌려준다 */
+  createUploadSession: (key: string, body: { filename: string; size_bytes: number }) =>
+    request<UploadSession>('/upload-sessions', { method: 'POST', headers: { 'Idempotency-Key': key }, body: JSON.stringify(body) }),
+
+  uploadSession: (id: string) => request<UploadSession>(`/upload-sessions/${id}`),
+
+  cancelUploadSession: (id: string) => request<null>(`/upload-sessions/${id}`, { method: 'DELETE' }),
+
+  /** 멱등 — 응답을 못 받고 다시 보내도 영상은 하나만 생긴다 */
+  completeUpload: (id: string, form: FormData) =>
+    request<{ video: { video_id: string; processing_status: ProcessingStatus } }>(`/upload-sessions/${id}/complete`, { method: 'POST', body: form }),
+
+  /** ready가 돼야 로컬 영상을 지운다 */
+  video: (id: string) => request<{ video_id: string; processing_status: ProcessingStatus }>(`/videos/${id}`),
 
   /** 재생용 임시 주소. 서버는 호스트 없이 `/video-collector/api/v1/...?token=`을 준다. */
   playbackUrl: async (videoId: string) => {
