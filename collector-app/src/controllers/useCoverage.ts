@@ -1,52 +1,68 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import * as Location from 'expo-location';
 import { api } from '@/models/api';
 import { mockApi } from '@/models/mockApi';
-import type { BBox, ClipTrace, CoverageCell, RoadSegment } from '@/models/types';
+import dongBoundaries from '@/models/data/dongs.json';
+import { extraRoads, isMajorClip } from '@/models/roadClass';
+import type { ClipTrace, RoadSegment } from '@/models/types';
 
-// 도로 구간은 실제 서버. 동 단위 집계(coverage)·개별 클립(clips)은 서버 API가 없어 아직 mock.
+// 도로 구간은 실제 서버. 동별 달성률(coverage)·클립(clips)은 서버 API가 없어 아직 mock.
 const source = mockApi;
 const roadsSource = api;
 
-export type MapLevel = 'grid' | 'road' | 'clip';
+/** dong: 동별 % / road: 큰길 클립만 / clip: 골목까지 전부 (D6) */
+export type MapLevel = 'dong' | 'road' | 'clip';
 
 export function levelForZoom(zoom: number): MapLevel {
-  // 도로 응답이 무겁다(2000구간=1.2MB). 반경 1km 안팎(z15)부터만 구간을 받는다.
-  if (zoom <= 14) return 'grid';
-  if (zoom <= 16) return 'road';
+  if (zoom <= 14) return 'dong';
+  if (zoom <= 15) return 'road';   // 골목은 z16부터 — z17은 너무 들어가야 보였다 (2026-10-05)
   return 'clip';
 }
 
-export function useCoverage() {
-  const [level, setLevel] = useState<MapLevel>('road');
-  const [cells, setCells] = useState<CoverageCell[]>([]);
-  const [roads, setRoads] = useState<RoadSegment[]>([]);
-  const [clips, setClips] = useState<ClipTrace[]>([]);
-  const [loading, setLoading] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+export type DongArea = { code: string; name: string; label: [number, number]; ring: [number, number][]; ratio: number };
+export type MapClip = ClipTrace & { major: boolean };
 
-  /** 카메라가 멈춘 뒤에만 요청한다. 팬 중에 매번 부르면 기기가 뜨거워진다. */
-  const onRegionChange = useCallback((bbox: BBox, zoom: number) => {
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      const next = levelForZoom(zoom);
-      setLevel(next);
-      setLoading(true);
-      try {
-        if (next === 'grid') setCells((await source.coverage()).cells);
-        else if (next === 'road') setRoads((await roadsSource.roads(bbox, 800)).roads);
-        else {
-          const [r, c] = await Promise.all([roadsSource.roads(bbox, 800), source.clips()]);
-          setRoads(r.roads); setClips(c.clips);
-        }
-      } catch (e) {
-        console.warn('[map] roads', e);
-      } finally {
-        setLoading(false);
-      }
-    }, 400);
+const SEONGDONG: [number, number] = [37.5506, 127.0409];
+
+// ponytail: 세션 동안만 기억한다. 클립이 수백 개로 늘어 지도 열 때마다 느려지면 파일로 남길 것
+const majorCache = new Map<string, boolean>();
+
+/** 클립 주변 서버 도로를 받아 큰길/골목을 가른다. 서버가 없는 곳(성동구 밖)은 앱에 넣은 도로명만 본다 */
+async function classify(c: ClipTrace): Promise<MapClip> {
+  const hit = majorCache.get(c.video_id);
+  if (hit !== undefined) return { ...c, major: hit };
+  const lats = c.geometry.map(p => p[0]), lons = c.geometry.map(p => p[1]);
+  const m = 0.0005;   // 약 45~55m — 매칭 거리 40m보다 넉넉하게
+  const server = await roadsSource.roads(
+    { minLat: Math.min(...lats) - m, maxLat: Math.max(...lats) + m, minLon: Math.min(...lons) - m, maxLon: Math.max(...lons) + m }, 500,
+  ).then(r => r.roads, e => { console.warn('[map] roads', e); return null; });
+  const major = isMajorClip(c.geometry, [...(server ?? []).map(r => ({ name: r.road_name, points: r.geometry })), ...extraRoads]);
+  if (server) majorCache.set(c.video_id, major);   // 서버 실패 땐 다음에 다시 시도
+  return { ...c, major };
+}
+
+export function useCoverage() {
+  const [level, setLevel] = useState<MapLevel>('dong');
+  const [start, setStart] = useState<[number, number] | null>(null);
+  const [dongs, setDongs] = useState<DongArea[]>([]);
+  const [clips, setClips] = useState<MapClip[]>([]);
+
+  useEffect(() => {
+    // 마지막으로 알던 위치에서 시작. 권한이 없거나 기록이 없으면 성동구
+    void Location.getLastKnownPositionAsync()
+      .then(p => setStart(p ? [p.coords.latitude, p.coords.longitude] : SEONGDONG), () => setStart(SEONGDONG));
+    void source.coverage().then(r => {
+      const ratio = new Map(r.dongs.map(d => [d.code, d.ratio]));
+      setDongs((dongBoundaries as Omit<DongArea, 'ratio'>[]).map(d => ({ ...d, ratio: ratio.get(d.code) ?? 0 })));
+    }, e => console.warn('[map] coverage', e));
+    void source.clips()
+      .then(r => Promise.all(r.clips.map(classify)))
+      .then(setClips, e => console.warn('[map] clips', e));
   }, []);
 
-  return { level, cells, roads, clips, loading, onRegionChange };
+  const onZoom = useCallback((zoom: number) => setLevel(levelForZoom(zoom)), []);
+
+  return { level, start, dongs, clips, onZoom };
 }
 
 /**

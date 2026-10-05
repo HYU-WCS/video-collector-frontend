@@ -50,9 +50,10 @@ export interface RoadSegment {
   geometry: [number, number][];   // [lat, lon][]
 }
 
-export interface CoverageCell {
-  bounds: [number, number, number, number];  // [minLat, minLon, maxLat, maxLon]
-  coverage: number;                          // 0..1
+/** 동 경계는 앱에 들어 있다 (models/data/dongs.json). 서버는 동 코드별 달성률만 준다 */
+export interface DongCoverage {
+  code: string;    // 행정기관코드 10자리
+  ratio: number;   // 0..1
 }
 
 export interface ClipTrace {

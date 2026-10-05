@@ -1,6 +1,7 @@
 import { initialDistance, shownDistance, stepDistance } from './distance';
 import { listTrajectories } from './storage';
-import type { BBox, ClipTrace, Progress, RoadSegment, Video } from './types';
+import dongs from './data/dongs.json';
+import type { BBox, ClipTrace, DongCoverage, Progress, RoadSegment, Video } from './types';
 
 // 백엔드가 준비되기 전까지 화면 개발용으로 쓰는 가짜 응답.
 // api.ts와 같은 모양을 유지할 것 — 교체는 controllers에서 import만 바꾸면 된다.
@@ -22,10 +23,6 @@ export const mockRoads: RoadSegment[] = [
   { road_id: 'm12', road_number: '2', road_name: '동소문로', status: 'rejected', reject_reason: 'GPS 이상', geometry: line(5, -0.0005, 0.0008) },
   { road_id: 'm13', road_number: '3', road_name: '동소문로', status: 'pending', geometry: line(7, 0.0006, -0.0007) },
   { road_id: 'm14', road_number: '1', road_name: '보문로', status: 'none', geometry: line(8, -0.0007, -0.0005) },
-];
-
-export const mockClips: ClipTrace[] = [
-  { video_id: '1042', status: 'pending', geometry: line(5, 0.0003, 0.0004) },
 ];
 
 export const mockVideos: Video[] = [
@@ -59,9 +56,13 @@ export const mockApi = {
       ? delay(null).then(() => { throw new Error('409'); })
       : delay({ refresh_token: 'mock-token', user: { user_id: 'u2', username } }),
   progress: () => delay(mockProgress),
-  coverage: () => delay({ cells: [] }),
+  // 서버의 동별 길 목표치가 아직 없다. 동 코드로 0~89% 사이 아무 값이나 만든 추정치
+  coverage: () => delay({ dongs: dongs.map((d): DongCoverage => ({ code: d.code, ratio: (Number(d.code.slice(-5)) % 89) / 100 })) }),
   roads: (_b: BBox, _limit?: number) => delay({ roads: mockRoads, truncated: false }),
-  clips: () => delay({ clips: mockClips }),
+  // 폰에 남은 내 궤적. 검수 결과를 아직 못 받으니 전부 검수 대기
+  clips: async () => delay({ clips: (await listTrajectories()).map((t): ClipTrace => ({
+    video_id: t.local_id, status: 'pending', geometry: t.points.map(p => [p.lat, p.lon]),
+  })) }),
   videos: async (params: { status?: string; reviewed_after?: string; cursor?: string } = {}) => delay({
     items: [...await localVideos(), ...mockVideos].filter(v =>
       (!params.status || v.review === params.status) &&

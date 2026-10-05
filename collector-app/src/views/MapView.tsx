@@ -1,65 +1,56 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Pressable, Text, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MapView, { Polyline } from 'react-native-maps';
+import MapView, { Marker, Polygon, Polyline } from 'react-native-maps';
 import { useCoverage } from '@/controllers/useCoverage';
 import { Color, StatusColor, StatusLabel } from '@/theme/colors';
 import type { RoadSegment, TrajectoryPoint } from '@/models/types';
 
 // 지도 SDK는 나중에 네이버로 교체한다. 그 교체 비용을 줄이려고 이 파일 밖으로 새어나가지 않게 둔다.
+// 찍은 길만 칠한다. 탭해도 아무것도 안 뜬다 — 지금은 보여주기만 (2026-10-04).
 export function CoverageMapView({ navigation }: any) {
-  const { roads, level, onRegionChange } = useCoverage();
-  const [selected, setSelected] = useState<RoadSegment | null>(null);
+  const { level, start, dongs, clips, onZoom } = useCoverage();
   const insets = useSafeAreaInsets();
 
   return (
     <View style={{ flex: 1 }}>
-      <MapView
-        style={{ flex: 1 }}
-        initialRegion={{ latitude: 37.5503, longitude: 127.0731, latitudeDelta: 0.01, longitudeDelta: 0.01 }}
-        showsUserLocation
-        rotateEnabled={false}
-        pitchEnabled={false}
-        onMapReady={() => onRegionChange(
-          { minLat: 37.5453, minLon: 127.0681, maxLat: 37.5553, maxLon: 127.0781 }, 16,
-        )}
-        onRegionChangeComplete={(r) => onRegionChange(
-          { minLat: r.latitude - r.latitudeDelta / 2, minLon: r.longitude - r.longitudeDelta / 2,
-            maxLat: r.latitude + r.latitudeDelta / 2, maxLon: r.longitude + r.longitudeDelta / 2 },
-          Math.round(Math.log2(360 / r.longitudeDelta)),
-        )}
-      >
-        {roads.map(r => (
-          <Polyline
-            key={r.road_id}
-            coordinates={r.geometry.map(([latitude, longitude]) => ({ latitude, longitude }))}
-            strokeColor={StatusColor[r.status]}
-            strokeWidth={selected?.road_id === r.road_id ? 9 : 6}
-            tappable
-            onPress={() => setSelected(r)}
-          />
-        ))}
-      </MapView>
+      {start && (
+        <MapView
+          style={{ flex: 1 }}
+          initialRegion={{ latitude: start[0], longitude: start[1], latitudeDelta: 0.04, longitudeDelta: 0.04 }}   // 약 z13, 동 단위
+          showsUserLocation
+          rotateEnabled={false}
+          pitchEnabled={false}
+          onRegionChangeComplete={r => onZoom(Math.round(Math.log2(360 / r.longitudeDelta)))}
+        >
+          {level === 'dong' && dongs.map(d => (
+            <Polygon key={d.code}
+              coordinates={d.ring.map(([latitude, longitude]) => ({ latitude, longitude }))}
+              fillColor={`rgba(37, 99, 235, ${0.08 + d.ratio * 0.5})`}
+              strokeColor="rgba(37, 99, 235, 0.6)" strokeWidth={1} />
+          ))}
+          {level === 'dong' && dongs.map(d => (
+            <Marker key={`label-${d.code}`} coordinate={{ latitude: d.label[0], longitude: d.label[1] }} anchor={{ x: 0.5, y: 0.5 }}>
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ fontSize: 11, color: Color.text }}>{d.name}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '600', color: Color.text }}>{Math.round(d.ratio * 100)}%</Text>
+              </View>
+            </Marker>
+          ))}
+          {level !== 'dong' && clips.filter(c => level === 'clip' || c.major).map(c => (
+            <Polyline key={c.video_id}
+              coordinates={c.geometry.map(([latitude, longitude]) => ({ latitude, longitude }))}
+              strokeColor={StatusColor[c.status]} strokeWidth={5} />
+          ))}
+        </MapView>
+      )}
 
       <Pressable onPress={() => navigation.goBack()} hitSlop={12}
         style={{ position: 'absolute', top: insets.top + 8, left: 12, backgroundColor: '#fff', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: Color.border }}>
         <Text style={{ color: Color.text }}>← 뒤로</Text>
       </Pressable>
 
-      <Legend />
-
-      {selected && (
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <Text style={{ fontSize: 16 }}>{selected.road_name}{selected.road_number ? ` #${selected.road_number}` : ''}</Text>
-          <Text style={{ color: StatusColor[selected.status], marginTop: 4 }}>{StatusLabel[selected.status]}</Text>
-          {selected.reject_reason && (
-            <Text style={{ color: Color.textMuted, marginTop: 4 }}>반려 사유: {selected.reject_reason}</Text>
-          )}
-          {selected.status === 'rejected' && (
-            <Text style={{ color: Color.textMuted, marginTop: 4 }}>누구든 다시 찍으면 됩니다</Text>
-          )}
-        </View>
-      )}
+      {level !== 'dong' && <Legend />}
     </View>
   );
 }
