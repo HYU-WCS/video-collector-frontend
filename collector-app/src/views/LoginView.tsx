@@ -1,30 +1,23 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
-import { Screen } from '@/components/Screen';
+import { Text } from 'react-native';
+import { AuthScreen, Field, SubmitButton, SwitchLink } from '@/components/AuthForm';
 import { useAuth } from '@/controllers/useAuth';
 import { Color } from '@/theme/colors';
 
-export function LoginView() {
+export function LoginView({ navigation }: any) {
   const { login, busy, error } = useAuth();
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
 
   return (
-    <Screen>
-      <View style={{ flex: 1, justifyContent: 'center', gap: 12 }}>
-        <Text style={{ fontSize: 24, fontWeight: '500', marginBottom: 24, color: Color.text }}>영상 수집</Text>
-        <Text style={{ color: Color.textMuted }}>아이디</Text>
-        <TextInput value={id} onChangeText={setId} autoCapitalize="none"
-          style={{ borderWidth: 1, borderColor: Color.border, borderRadius: 8, padding: 12 }} />
-        <Text style={{ color: Color.textMuted }}>비밀번호</Text>
-        <TextInput value={pw} onChangeText={setPw} secureTextEntry
-          style={{ borderWidth: 1, borderColor: Color.border, borderRadius: 8, padding: 12 }} />
-        {error ? <Text style={{ color: Color.danger, fontSize: 13 }}>{error}</Text> : null}
-        <Pressable onPress={() => login(id, pw)} disabled={busy}
-          style={{ backgroundColor: Color.accent, borderRadius: 8, padding: 14, alignItems: 'center', marginTop: 8 }}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontWeight: '500' }}>로그인</Text>}
-        </Pressable>
-      </View>
-    </Screen>
+    <AuthScreen>
+      <Text style={{ fontSize: 24, fontWeight: '500', marginBottom: 24, color: Color.text }}>영상 수집</Text>
+      <Field label="아이디" value={id} onChangeText={setId} />
+      <Field label="비밀번호" value={pw} onChangeText={setPw} secret />
+      {error ? <Text style={{ color: Color.danger, fontSize: 13 }}>{error}</Text> : null}
+      <SubmitButton label="로그인" busy={busy} onPress={() => login(id, pw)} />
+      <SwitchLink question="계정이 없나요?" action="회원가입" onPress={() => navigation.navigate('Signup')} />
+      <Text style={{ color: Color.textMuted, fontSize: 12, textAlign: 'center', marginTop: 24 }}>자동 로그인됩니다</Text>
+    </AuthScreen>
   );
 }

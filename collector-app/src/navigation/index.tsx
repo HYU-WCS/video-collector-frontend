@@ -2,6 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeView } from '@/views/HomeView';
 import { LoginView } from '@/views/LoginView';
+import { SignupView } from '@/views/SignupView';
 import { RecordView } from '@/views/RecordView';
 import { CoverageMapView } from '@/views/MapView';
 import { AlbumView } from '@/views/AlbumView';
@@ -16,7 +17,10 @@ export function Navigation({ signedIn }: { signedIn: boolean }) {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!signedIn ? (
-          <Stack.Screen name="Login" component={LoginView} />
+          <>
+            <Stack.Screen name="Login" component={LoginView} />
+            <Stack.Screen name="Signup" component={SignupView} />
+          </>
         ) : (
           <>
             <Stack.Screen name="Home" component={HomeView} />

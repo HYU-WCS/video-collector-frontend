@@ -1,7 +1,7 @@
 import type { BBox, RoadSegment, RoadStatus, User } from './types';
 
 // 실제 백엔드: 팀원이 만든 video-collector (docs/04-api.md "실제 백엔드").
-// 지금 연결된 건 로그인·지도(도로)뿐. 앨범·업로드·진척도는 수집가 계정과 궤적 형식이 정해진 뒤.
+// 지금 연결된 건 로그인·가입·지도(도로)뿐. 앨범·업로드·진척도는 수집가 계정과 궤적 형식이 정해진 뒤.
 // 응답 모양이 앱 타입과 다른 곳은 여기서 변환해, controllers는 mockApi와 같은 모양만 보게 한다.
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://166.104.36.71:8002/video-collector';
@@ -124,6 +124,12 @@ export const api = {
     accessToken = r.access_token;
     refreshToken = r.refresh_token;
     return { refresh_token: r.refresh_token, user: r.user };
+  },
+
+  /** 새 계정은 항상 수집가 권한. 가입 응답 모양이 문서에 없어서, 가입 뒤 바로 로그인해 토큰을 받는다. */
+  register: async (username: string, password: string): Promise<{ refresh_token: string; user: User }> => {
+    await raw('/auth/register', { method: 'POST', body: JSON.stringify({ username, password }) });
+    return api.login(username, password);
   },
 
   logout: async () => {

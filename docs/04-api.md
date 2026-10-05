@@ -120,7 +120,7 @@ POST /api/review/rollback  { confirm_id }
 위 스펙은 합의 전 제안이었다. 팀원이 만든 실제 서버는 아래와 같다.
 출처: OpenAPI(`/video-collector/openapi.json`) + 검수 웹 코드 + admin 계정 조회(읽기만, 2026-09-24).
 
-**앱 연결 상태:** 로그인·토큰 갱신·도로 구간은 실제 서버(`src/models/api.ts`). 나머지는 mock.
+**앱 연결 상태:** 로그인·가입·토큰 갱신·도로 구간은 실제 서버(`src/models/api.ts`). 나머지는 mock.
 업로드는 `uploader.ts`의 `UPLOAD_ENABLED = false`로 막아 둠.
 
 확인된 사실:
@@ -141,7 +141,7 @@ POST /api/review/rollback  { confirm_id }
 | 용도 | 실제 API | 우리 제안과 차이 |
 |---|---|---|
 | 로그인 | `POST /auth/login {username,password,client_type}` → `{access_token, user{username, role}, …}` | access + refresh 토큰. `POST /auth/refresh`, `/auth/logout` |
-| 회원가입 | **없음** | 팀 요청(09.23)과 어긋남 — 확인 필요 |
+| 회원가입 | `POST /auth/register {username, password}` → 201 (10.05 추가) | 토큰을 주는지 문서에 없어 앱은 가입 뒤 바로 login을 부른다. 항상 수집가 권한 |
 | 내 정보·진척도 | `GET /users/me`, `GET /users/me/progress` | 진척도 응답 모양 미확인 |
 | 업로드 | `POST /videos` multipart `file`, `trajectory`(파일, 선택) + `Idempotency-Key` 헤더 → 202 | 메타(recorded_at 등) 필드 없음 — 서버가 파일에서 뽑는 듯. 비동기 처리(`processing_status`: uploaded→processing→ready/failed) |
 | 앨범 | `GET /videos?scope=mine&processing_status=&unlinked=&cursor=&limit=` → `{items, next_cursor}` | 커서 페이지네이션 ✓. **검수 상태(반려) 필터 없음** |

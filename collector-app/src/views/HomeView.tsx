@@ -12,7 +12,11 @@ export function HomeView({ navigation }: any) {
   const p = mockProgress;
 
   return (
-    <Screen title="영상 수집">
+    <Screen title="영상 수집" right={
+      <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={12}>
+        <Text style={{ color: Color.textMuted }}>설정</Text>
+      </Pressable>
+    }>
       <View style={{ backgroundColor: Color.surface, borderRadius: 16, padding: 20, marginBottom: 16 }}>
         <Text style={{ fontSize: 18 }}>{(p.my_distance_m / 1000).toFixed(1)}km 촬영했어요!</Text>
         <Text style={{ color: Color.textMuted, marginTop: 6 }}>

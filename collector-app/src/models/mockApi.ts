@@ -53,10 +53,6 @@ const delay = <T,>(v: T, ms = 300) => new Promise<T>(r => setTimeout(() => r(v),
 export const mockApi = {
   health: () => delay({ ok: true }),
   login: (username: string, _password: string) => delay({ refresh_token: 'mock-token', user: { user_id: 'u1', username } }),
-  signup: (username: string, _password: string) =>
-    username === 'taken'   // 아이디 중복 에러 화면 확인용
-      ? delay(null).then(() => { throw new Error('409'); })
-      : delay({ refresh_token: 'mock-token', user: { user_id: 'u2', username } }),
   progress: () => delay(mockProgress),
   // 서버의 동별 길 목표치가 아직 없다. 동 코드로 0~89% 사이 아무 값이나 만든 추정치
   coverage: () => delay({ dongs: dongs.map((d): DongCoverage => ({ code: d.code, ratio: (Number(d.code.slice(-5)) % 89) / 100 })) }),
