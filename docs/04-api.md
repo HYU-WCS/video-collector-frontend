@@ -148,7 +148,7 @@ POST /api/review/rollback  { confirm_id }
 | 영상 상세 | `GET /videos/{id}` → `size_bytes, duration_ms, upload_date, processing_status…` | |
 | 재생 | `POST /videos/{id}/playback-token` → `{url, expires_in}` | signed URL 방식 ✓ |
 | 궤적 | `GET /videos/{id}/trajectory` → GeoJSON | 업로드 궤적 파일 형식(우리 JSON vs GeoJSON) 확인 필요 |
-| 지도 | `GET /roads?bbox=&limit≤2000&cursor=` → GeoJSON `{features, next_cursor}`; properties `road_id, road_name, road_number, path_type, accepted/pending/rejected` | 줌 레벨별 3분리 없음. 동 단위 집계 없음 |
+| 지도 | **`GET /roads/sync?since=` 로컬 동기화 (D23)**. 이전: `GET /roads?bbox=&limit≤2000&cursor=` → GeoJSON `{features, next_cursor}`; properties `road_id, road_name, road_number, path_type, accepted/pending/rejected` | 줌 레벨별 3분리 없음. 동 단위 집계 없음 |
 | 데이터셋 | `GET /roads/summary` → `datasets[{boundary, metadata}]` | **서울시 도보 네트워크**(횡단보도·육교·지하도 포함) — Q4 해결 |
 | 검수 | `/reviews/queue`, `/reviews/{confirm_id}/{accept|reject|rollback}`, `/videos/{id}/roads` | 반려 사유는 자유 텍스트 `reason`. 낙관적 잠금 `expected_version` |
 

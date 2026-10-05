@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Pressable, Text, View, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Circle, Marker, Polygon, Polyline } from 'react-native-maps';
 import { useCoverage } from '@/controllers/useCoverage';
@@ -7,9 +7,9 @@ import { Color, StatusColor, StatusLabel } from '@/theme/colors';
 import type { RoadSegment, TrajectoryPoint } from '@/models/types';
 
 // 지도 SDK는 나중에 네이버로 교체한다. 그 교체 비용을 줄이려고 이 파일 밖으로 새어나가지 않게 둔다.
-// 찍은 길만 칠한다. 탭해도 아무것도 안 뜬다 — 지금은 보여주기만 (2026-10-04).
+// 찍은 길만 칠한다 — 서버 도로 중 검수에 걸린 것(모든 사용자) + 아직 매칭 전인 내 클립. 탭해도 아무것도 안 뜬다 (D20).
 export function CoverageMapView({ navigation }: any) {
-  const { level, start, dongs, clips, onZoom } = useCoverage();
+  const { level, start, dongs, roads, clips, onZoom, sync } = useCoverage();
   const insets = useSafeAreaInsets();
 
   return (
@@ -26,14 +26,14 @@ export function CoverageMapView({ navigation }: any) {
           {level === 'dong' && dongs.map(d => (
             <Polygon key={d.code}
               coordinates={d.ring.map(([latitude, longitude]) => ({ latitude, longitude }))}
-              fillColor={`rgba(37, 99, 235, ${0.08 + d.ratio * 0.5})`}
+              fillColor={`rgba(37, 99, 235, ${0.08 + (d.ratio ?? 0) * 0.5})`}
               strokeColor="rgba(37, 99, 235, 0.6)" strokeWidth={1} />
           ))}
           {level === 'dong' && dongs.map(d => (
             <Marker key={`label-${d.code}`} coordinate={{ latitude: d.label[0], longitude: d.label[1] }} anchor={{ x: 0.5, y: 0.5 }}>
               <View style={{ alignItems: 'center' }}>
                 <Text style={{ fontSize: 11, color: Color.text }}>{d.name}</Text>
-                <Text style={{ fontSize: 15, fontWeight: '600', color: Color.text }}>{Math.round(d.ratio * 100)}%</Text>
+                {d.ratio != null && <Text style={{ fontSize: 15, fontWeight: '600', color: Color.text }}>{Math.round(d.ratio * 100)}%</Text>}
               </View>
             </Marker>
           ))}
@@ -42,7 +42,23 @@ export function CoverageMapView({ navigation }: any) {
               coordinates={c.geometry.map(([latitude, longitude]) => ({ latitude, longitude }))}
               strokeColor={StatusColor[c.status]} strokeWidth={5} />
           ))}
+          {/* 서버 검수 상태가 내 클립 위에 오게 나중에 그린다 */}
+          {level !== 'dong' && roads.filter(r => level === 'clip' || r.major).map(r => (
+            <Polyline key={r.road_id}
+              coordinates={r.geometry.map(([latitude, longitude]) => ({ latitude, longitude }))}
+              strokeColor={StatusColor[r.status]} strokeWidth={5} />
+          ))}
         </MapView>
+      )}
+
+      {/* 동기화 실패가 지도를 막지 않는다 — 받아 둔 도로를 계속 보여주고 위에 작게 알린다 */}
+      {(!sync.ready || sync.syncing) && (
+        <View style={{ position: 'absolute', top: insets.top + 8, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: Color.border }}>
+          {sync.syncing && <ActivityIndicator size="small" />}
+          <Text style={{ fontSize: 12, color: Color.textMuted }}>
+            {sync.ready ? '동기화 중' : sync.syncing ? `도로 정보를 준비하는 중 · ${sync.count.toLocaleString()}개` : '도로 정보를 아직 못 받았어요'}
+          </Text>
+        </View>
       )}
 
       <Pressable onPress={() => navigation.goBack()} hitSlop={12}

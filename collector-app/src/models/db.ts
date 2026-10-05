@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { migrateRoadCache } from './roadCache';
 import type { UploadStatus } from './types';
 
 // 로컬 캐시 + 업로드 큐.
@@ -26,16 +27,6 @@ export async function getDb() {
       created_at    INTEGER NOT NULL
     );
 
-    CREATE TABLE IF NOT EXISTS road_cache (
-      road_id     TEXT PRIMARY KEY,
-      road_number TEXT,
-      road_name   TEXT,
-      seq         INTEGER,
-      status      TEXT,
-      geometry    TEXT,
-      updated_at  INTEGER
-    );
-
     CREATE INDEX IF NOT EXISTS idx_queue_status ON upload_queue(status);
   `);
   // 재개 업로드용 컬럼 (2026-10-05). 이미 찍어 둔 클립을 지키려고 없는 컬럼만 추가한다
@@ -45,6 +36,7 @@ export async function getDb() {
   }
   // 업로드 중 앱이 죽으면 uploading이 남는다. 그대로 두면 다시는 안 올라가니 대기로 되돌린다 — 서버가 받은 곳부터 이어 간다
   await _db.runAsync(`UPDATE upload_queue SET status = 'queued' WHERE status = 'uploading'`);
+  await migrateRoadCache(_db);
   return _db;
 }
 

@@ -385,7 +385,7 @@ A가 `road_id`를 들고 찍은 것과 B가 그냥 찍은 게 겹치면 어떻�
 - 도로명: 성동구는 실서버 `/roads`. 테스트 클립이 은평구 수색동에 있어 **수색동만** OSM 도로명을
   앱에 넣었다(`models/data/susaek-roads.json`, © OpenStreetMap contributors, ODbL). 그 밖은 전부 골목.
 - 동 경계: 성동구 17개 동 + 수색동 (`models/data/dongs.json`, vuski/admdongkor ver20260701 — 행정안전부 행정동 경계).
-- 동 %: **목업 추정치.** 서버에 길 목표치가 생기면 그 기준으로 바꾼다 (`06` Q11).
+- 동 %: ~~목업 추정치~~ → D23부터 로컬 도로 캐시로 계산 (accept된 도로 길이 ÷ 동 안 전체 도로 길이).
 
 `data/raw` 35개로 확인: 큰길 4개, 골목 31개. 붙을 도로가 없는 23개는 대부분 단지 안(가장 가까운 도로명까지 70~95m)과 수색동 밖이다.
 
@@ -427,3 +427,26 @@ A가 `road_id`를 들고 찍은 것과 B가 그냥 찍은 게 겹치면 어떻�
 - Android: OS가 프로세스를 정리하기 전까지 백그라운드에서도 계속 보낸다.
 - 어느 쪽이든 **사용자가 누른 업로드가 덜 끝났으면 앱이 다시 앞으로 올 때 이어 간다.** 새 클립을 저절로 올리는 건 아니다(D21).
 - 화면이 꺼져도 끝까지 보내려면 Android foreground service / iOS background task가 필요하다 — Expo Go로는 안 되고 dev build가 필요하다.
+
+---
+
+## D23. 도로는 로컬 SQLite에 동기화해 두고 지도는 그것만 읽는다 [확정]
+
+2026-10-05, 팀 결정. 서버 `GET /roads/sync?since=<revision>` (백엔드 docs/road-sync.md). 코드는
+`models/roadCache.ts`(저장·조회), `models/roadSync.ts`(일정), `controllers/useRoadSync.ts`(구독).
+
+- **언제:** 로그인·세션 복원 직후, 앱이 앞으로 왔고 마지막 성공이 1분 넘었을 때, 앞에 있는 동안 5분마다,
+  설정의 "지금 새로고침". 동시에 두 번 돌지 않는다. 실패하면 2·5·15·30초 backoff, 앱 복귀가 예약된 재시도를 앞당긴다.
+- **페이지 = transaction 하나:** upsert·delete와 `next_revision` 저장을 같이 커밋한다. 받던 중 끊겨도 커밋한 페이지부터 이어 간다.
+- **캐시를 비우는 건 409뿐**(로컬 revision이 서버보다 앞섬). 네트워크 오류·5xx·401에서는 그대로 두고 마지막 도로를 보여준다.
+- **지도(D20 유지):** `review_status != none`인 도로(모든 사용자가 찍어 검수에 걸린 길)를 서버 상태 색으로 칠하고,
+  아직 매칭 전인 내 클립을 그 아래 깐다. 9,529개 전체를 회색까지 그리지는 않는다.
+- **큰길/골목 분류·미니맵**도 로컬 캐시를 bbox로 읽는다 — 클립마다 `/roads`를 부르던 N번 요청이 없어졌다.
+- **동별 %**: 도로를 bbox 중심이 든 동에 넣고 accept된 길이 ÷ 전체 길이. 최초 동기화 전에는 %를 숨긴다.
+- 기존 `road_cache`(쓰지 않던 옛 스키마)는 지우지 않고 컬럼만 더한다. bbox 컬럼(`min_lat` 등)은 화면 범위 조회용으로 앱이 추가.
+- 상태는 서버 `review_status`를 그대로 쓴다(accepted > pending > rejected > none). 원시 개수도 저장한다.
+
+검증: `node collector-app/tests/roadCache.check.ts` — Node 내장 SQLite로 같은 함수를 돌린다(마이그레이션, 다중 페이지,
+증분, 페이지 실패 롤백, 끊긴 뒤 재개, 409만 초기화, 좌표 순서, 동별 %). 실서버 export 9,529개로 Node에서
+최초 동기화 46ms, 동별 % 19ms, 미니맵 범위 조회 1ms. AppState·타이머는 실기기에서 확인한다.
+

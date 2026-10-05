@@ -1,8 +1,7 @@
 import { initialDistance, shownDistance, stepDistance } from './distance';
 import { queue } from './db';
 import { listTrajectories } from './storage';
-import dongs from './data/dongs.json';
-import type { BBox, ClipTrace, DongCoverage, Progress, RoadSegment, Video } from './types';
+import type { BBox, ClipTrace, Progress, RoadSegment, Video } from './types';
 
 // 백엔드가 준비되기 전까지 화면 개발용으로 쓰는 가짜 응답.
 // api.ts와 같은 모양을 유지할 것 — 교체는 controllers에서 import만 바꾸면 된다.
@@ -54,8 +53,6 @@ export const mockApi = {
   health: () => delay({ ok: true }),
   login: (username: string, _password: string) => delay({ refresh_token: 'mock-token', user: { user_id: 'u1', username } }),
   progress: () => delay(mockProgress),
-  // 서버의 동별 길 목표치가 아직 없다. 동 코드로 0~89% 사이 아무 값이나 만든 추정치
-  coverage: () => delay({ dongs: dongs.map((d): DongCoverage => ({ code: d.code, ratio: (Number(d.code.slice(-5)) % 89) / 100 })) }),
   roads: (_b: BBox, _limit?: number) => delay({ roads: mockRoads, truncated: false }),
   // 폰에 남은 내 궤적. 검수 결과를 아직 못 받으니 전부 검수 대기
   clips: async () => delay({ clips: (await listTrajectories()).map((t): ClipTrace => ({

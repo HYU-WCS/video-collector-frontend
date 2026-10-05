@@ -32,6 +32,32 @@ export interface UploadSession {
   video_id: string | null;
 }
 
+/** /roads/sync 한 페이지 (백엔드 docs/road-sync.md) */
+export interface RoadSyncRow {
+  road_id: string;
+  road_number: string | null;
+  road_name: string;
+  dataset_id: string;
+  source_link_id: string | null;
+  segment_index: number | null;
+  side: string;
+  path_type: string;
+  length_m: number | null;
+  geometry: { type: 'LineString'; coordinates: [number, number][] };   // [경도, 위도]
+  accepted: number;
+  pending: number;
+  rejected: number;
+  review_status: RoadStatus;
+}
+
+export interface RoadSyncPage {
+  head_revision: number;
+  next_revision: number;
+  has_more: boolean;
+  upserts: RoadSyncRow[];
+  deletes: string[];
+}
+
 export type ProcessingStatus = 'uploaded' | 'processing' | 'ready' | 'failed';
 
 interface AuthResponse { access_token: string; refresh_token: string; expires_in: number; user: User }
@@ -150,6 +176,9 @@ export const api = {
     }).catch(() => {});
     setRefreshToken(null);
   },
+
+  /** since 이후 바뀐 도로. 로컬 revision이 서버보다 앞서면 409 */
+  roadSync: (since: number, limit = 1000) => request<RoadSyncPage>(`/roads/sync?since=${since}&limit=${limit}`),
 
   /** 구간 단위. 한 페이지만 받는다 — 2000개면 1.2MB라, 지도는 충분히 확대됐을 때만 부른다. */
   roads: async (b: BBox, limit = 500) => {

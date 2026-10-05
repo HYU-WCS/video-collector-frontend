@@ -7,6 +7,7 @@ import { getDb } from '@/models/db';
 import { clearToken, ensureDirs, loadToken, saveToken } from '@/models/storage';
 import { onSessionExpired, onTokenRotated, setRefreshToken } from '@/models/api';
 import { setSignedIn, useSignedIn } from '@/controllers/session';
+import { startRoadSync, stopRoadSync } from '@/models/roadSync';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -25,6 +26,13 @@ export default function App() {
       setReady(true);
     })();
   }, []);
+
+  // 로그인 성공·세션 복원 직후 도로 동기화를 켜고, 로그아웃하면 끈다
+  useEffect(() => {
+    if (!ready) return;
+    if (signedIn) void startRoadSync();
+    else stopRoadSync();
+  }, [ready, signedIn]);
 
   if (!ready) return null;
   return (
