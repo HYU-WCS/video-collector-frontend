@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from 'react-native';
+import { Image, ImageSourcePropType, Pressable, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { exportTrajectories } from '@/controllers/devExport';
 import { useRejectNotice } from '@/controllers/useRejectNotice';
@@ -42,13 +42,16 @@ export function HomeView({ navigation }: any) {
       </View>
 
       <View style={{ flexDirection: 'row', gap: 12 }}>
-        <Tile label="지도" caption="얼마나 했는지 보기" onPress={() => navigation.navigate('Map')} />
-        <Tile label="촬영" caption="영상 수집" onPress={() => navigation.navigate('Record')} />
+        <Tile label="지도" caption="얼마나 했는지 보기" icon={require('../../assets/icons/map.png')} onPress={() => navigation.navigate('Map')} />
+        <Tile label="촬영" caption="영상 수집" icon={require('../../assets/icons/camera.png')} onPress={() => navigation.navigate('Record')} />
       </View>
       <Pressable onPress={() => navigation.navigate('Album')}
-        style={{ borderWidth: 1, borderColor: Color.border, borderRadius: 12, padding: 20, marginTop: 12 }}>
-        <Text style={{ fontSize: 16 }}>앨범 리스트</Text>
-        <Text style={{ color: Color.textMuted, fontSize: 13, marginTop: 4 }}>찍은 데이터 확인</Text>
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 16, borderWidth: 1, borderColor: Color.border, borderRadius: 12, padding: 20, marginTop: 12 }}>
+        <Image source={require('../../assets/icons/album.png')} style={{ width: 48, height: 48 }} />
+        <View>
+          <Text style={{ fontSize: 16 }}>앨범 리스트</Text>
+          <Text style={{ color: Color.textMuted, fontSize: 13, marginTop: 4 }}>찍은 데이터 확인</Text>
+        </View>
       </Pressable>
       {__DEV__ && (
         <Pressable onPress={async () => { if (!(await exportTrajectories())) alert('저장된 궤적이 없어요'); }}
@@ -60,10 +63,14 @@ export function HomeView({ navigation }: any) {
   );
 }
 
-function Tile({ label, caption, onPress }: { label: string; caption: string; onPress: () => void }) {
+function Tile({ label, caption, icon, onPress }: { label: string; caption: string; icon: ImageSourcePropType; onPress: () => void }) {
   return (
     <Pressable onPress={onPress}
       style={{ flex: 1, aspectRatio: 1, borderWidth: 1, borderColor: Color.border, borderRadius: 12, padding: 16, justifyContent: 'flex-end' }}>
+      {/* 글자는 아래에 붙여 두고, 아이콘은 남는 위쪽 공간 가운데에 */}
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Image source={icon} style={{ width: 72, height: 72 }} />
+      </View>
       <Text style={{ fontSize: 18 }}>{label}</Text>
       <Text style={{ color: Color.textMuted, fontSize: 13, marginTop: 4 }}>{caption}</Text>
     </Pressable>
