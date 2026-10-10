@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { AppState, Linking, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -12,7 +12,7 @@ import { StatusColor } from '@/theme/colors';
 // 촬영 화면만 가로로 고정한다. 도로 폭을 넓게 담고, 모든 클립의 화면비를 통일하기 위해서다 (D17).
 // 회전을 따라가게 두면 세로·가로 클립이 섞여 검수와 데이터 품질이 들쭉날쭉해진다.
 export function RecordView({ navigation }: any) {
-  const [perm, requestPerm] = useCameraPermissions();
+  const [perm, requestPerm, getPerm] = useCameraPermissions();
   const cam = useRef<CameraView>(null);
   const rec = useRecorder();
   const nearby = useNearbyRoads(rec.position);
@@ -27,10 +27,26 @@ export function RecordView({ navigation }: any) {
     return () => { void ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP); };
   }, []);
 
+  // 화면에 들어오면 버튼 없이 바로 시스템 권한 창을 띄운다. 처음 한 번만 —
+  // 안드로이드는 첫 거부 뒤에도 다시 물을 수 있어서, 조건을 canAskAgain으로 두면 거부하자마자 창이 또 뜬다.
+  useEffect(() => {
+    if (perm?.status === 'undetermined') void requestPerm();
+  }, [perm?.status]);
+
+  // 설정 앱에서 허용하고 돌아오면 다시 읽는다. 훅은 마운트 때만 상태를 읽기 때문.
+  useEffect(() => {
+    const s = AppState.addEventListener('change', st => { if (st === 'active') void getPerm(); });
+    return () => s.remove();
+  }, []);
+
   if (!perm?.granted) {
+    // 한 번 거부하면(안드로이드는 두 번) OS가 권한 창을 다시 띄워주지 않는다. 설정 앱으로 보낸다.
+    const blocked = perm && !perm.canAskAgain;
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Pressable onPress={requestPerm}><Text>카메라 권한 허용하기</Text></Pressable>
+        <Pressable onPress={blocked ? () => Linking.openSettings() : requestPerm}>
+          <Text>{blocked ? '설정에서 카메라 허용하기' : '카메라 권한 허용하기'}</Text>
+        </Pressable>
       </View>
     );
   }
@@ -89,6 +105,14 @@ export function RecordView({ navigation }: any) {
             {rec.gps === 'weak' ? `GPS ${Math.round(rec.accuracy ?? 0)}m` : 'GPS 없음'}
           </Text>
         </View>
+      )}
+
+      {/* 위치 권한이 없으면 궤적을 못 남기므로 녹화 버튼이 막힌다. 이유와 해결 버튼을 보여준다. */}
+      {rec.locPerm !== 'ok' && (
+        <Pressable onPress={rec.locPerm === 'blocked' ? () => Linking.openSettings() : rec.askLocation}
+          style={{ position: 'absolute', top: '50%', alignSelf: 'center', marginTop: -20, backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10 }}>
+          <Text>{rec.locPerm === 'blocked' ? '설정에서 위치 허용하기' : '위치 권한 허용하기'}</Text>
+        </Pressable>
       )}
 
       {error && (

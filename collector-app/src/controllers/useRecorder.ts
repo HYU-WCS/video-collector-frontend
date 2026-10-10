@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import * as Location from 'expo-location';
 import { useKeepAwake } from 'expo-keep-awake';
 import { adoptRecording, saveThumbnail, writeTrajectory } from '@/models/storage';
@@ -37,11 +38,14 @@ export function useRecorder() {
   const [fixes, setFixes] = useState(0);
   const [lastFixAt, setLastFixAt] = useState<number | null>(null);
   const [resubs, setResubs] = useState(0);
+  // denied = 다시 물어볼 수 있음, blocked = OS가 더는 안 물어봄 → 설정 앱으로 보내야 함
+  const [locPerm, setLocPerm] = useState<'ok' | 'denied' | 'blocked'>('ok');
 
   const points = useRef<TrajectoryPoint[]>([]);
   const dist = useRef(initialDistance());
   const lastFixRef = useRef(0);
   const granted = useRef(false);
+  const alive = useRef(true);
   const enteredAt = useRef(Date.now());
   const startedAt = useRef<number>(0);
   const localId = useRef<string>('');
@@ -57,17 +61,32 @@ export function useRecorder() {
     );
   }, []);
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted' || !alive) return;
-      granted.current = true;
-      lastFixRef.current = Date.now();
-      await subscribe();
-    })().catch(e => console.warn('[gps] subscribe failed', e));
-    return () => { alive = false; sub.current?.remove(); };
+  const applyLocPerm = useCallback(async (p: Location.LocationPermissionResponse) => {
+    if (!alive.current) return;
+    setLocPerm(p.granted ? 'ok' : p.canAskAgain ? 'denied' : 'blocked');
+    if (!p.granted || granted.current) return;
+    granted.current = true;
+    lastFixRef.current = Date.now();
+    await subscribe();
   }, [subscribe]);
+
+  const askLocation = useCallback(() => {
+    Location.requestForegroundPermissionsAsync().then(applyLocPerm).catch(e => console.warn('[gps] subscribe failed', e));
+  }, [applyLocPerm]);
+
+  useEffect(() => {
+    alive.current = true;
+    // 처음 한 번만 권한 창을 자동으로 띄운다. 거부된 상태면 화면의 버튼으로 다시 묻는다.
+    (async () => {
+      const p = await Location.getForegroundPermissionsAsync();
+      await applyLocPerm(p.status === 'undetermined' ? await Location.requestForegroundPermissionsAsync() : p);
+    })().catch(e => console.warn('[gps] subscribe failed', e));
+    // 설정 앱에서 허용하고 돌아오면 읽기만 한다. 여기서 요청하면 거부 직후 창이 또 뜬다.
+    const s = AppState.addEventListener('change', st => {
+      if (st === 'active' && !granted.current) void Location.getForegroundPermissionsAsync().then(applyLocPerm).catch(e => console.warn('[gps] subscribe failed', e));
+    });
+    return () => { alive.current = false; s.remove(); sub.current?.remove(); };
+  }, [applyLocPerm]);
 
   // 감시견: iOS는 오류나 자동 일시정지로 위치 스트림을 조용히 끝내는 경우가 있다.
   // 끝난 스트림은 다시 살아나지 않으므로, 몇 초간 소식이 없으면 새로 구독한다.
@@ -175,6 +194,7 @@ export function useRecorder() {
     diag: { fixes, resubs, lastFixAgo: lastFixAt ? Math.round((now - lastFixAt) / 1000) : null },
     canRecord: gps !== 'none' && ready,
     trail: points.current,
+    locPerm, askLocation,
     start, finish,
   };
 }
