@@ -98,7 +98,9 @@ Android는 APK 링크만 보내면 된다 (설치할 때 "출처를 알 수 없�
 >
 > **Windows (10·11)**
 > 1. iTunes·iCloud가 **Microsoft Store에서 깐 것이면 지웁니다** (설정 → 앱 → 설치된 앱 → iTunes / iCloud → 제거). Store 버전으로는 Sideloadly가 iPhone을 못 찾습니다.
-> 2. 아래 링크로 받아 설치하고, 다 깔리면 **컴퓨터를 재시동**합니다.
+> 2. iTunes·iCloud를 다시 설치하고, 다 깔리면 **컴퓨터를 재시동**합니다.
+>    [sideloadly.io](https://sideloadly.io/)에서 **Download**를 누르면 나오는 화면에 iTunes·iCloud 설치 링크가 같이 있습니다. 거기서 받으면 됩니다.
+>    그 화면에서 못 찾으면 아래 링크로 직접 받으세요.
 >    - iTunes: `https://www.apple.com/itunes/download/win64`
 >    - iCloud: `https://updates.cdn-apple.com/2020/windows/001-39935-20200911-1A70AA56-F448-11EA-8CC0-99D41950005E/iCloudSetup.exe`
 >    - (iCloud에 로그인할 필요는 없습니다. 깔려 있기만 하면 됩니다)
