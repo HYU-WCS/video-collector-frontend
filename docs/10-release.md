@@ -7,7 +7,8 @@ iOS는 무료 계정(`09-ios-build.md`), Android는 EAS `preview` 프로필 APK.
 
 | 항목 | 상태 |
 |---|---|
-| 코드 | 커밋 `f9f3bc1`, 브랜치 `feat/field-fixes-1031` — **main 병합·push 안 함** |
+| 코드 | `main` 병합·push, 태그 `v1.0.0` |
+| 배포 | GitHub Release `v1.0.0` — IPA·APK·서버 인증서 첨부 |
 | iOS | Release 빌드 → 내 iPhone 설치 ✅, IPA `collector-app/dist/collector-ios-1.0.0-20261031.ipa` ✅, 원격 수집가 설치 ❌ |
 | Android | EAS 빌드 `0d6691cd-…` 완료 ✅ (APK 링크는 릴리스 기록), 수집가 설치 ❌ |
 | 실기기 확인 | 뒤로가기 차단·멈춤 안내·앨범 실데이터 — ❌ 아직 |
