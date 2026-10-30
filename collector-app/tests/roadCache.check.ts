@@ -6,7 +6,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import {
-  applyRoadSyncPage, dongCoverage, migrateRoadCache, readRoadMeta, reviewedRoads, roadsInBBox, syncAllRoads,
+  applyRoadSyncPage, dongCoverage, migrateRoadCache, nodesOf, readRoadMeta, reviewedRoads, roadsInBBox, syncAllRoads,
 } from '../src/models/roadCache.ts';
 
 /** expo-sqlite에서 roadCache.ts가 쓰는 만큼만 흉내 낸다 */
@@ -155,6 +155,24 @@ async function main() {
     console.log('✓ coordinate order, bbox query, dong coverage');
   }
 
+  // 7-1. 노드: 끝 좌표가 같은 구간은 한 노드, 색은 가장 앞선 상태, bbox 밖 끝점은 뺀다
+  {
+    const db = memoryDb();
+    await migrateRoadCache(db);
+    // a: (37.55,127.04)→(37.5502,127.0403), b: 그 끝에서 시작. 부동소수 합이라 끝 좌표가 미세하게 달라도 같은 노드여야 한다
+    await applyRoadSyncPage(db, page(1, false, [road('a', 'accepted'), road('b', 'none', 127.04 + 0.0003, 37.55 + 0.0002), road('c', 'rejected', 127.0403, 37.5502)]));
+    const wide = { minLat: 37.5, maxLat: 37.6, minLon: 127.0, maxLon: 127.1 };
+    const all = nodesOf(await roadsInBBox(db, wide), wide);
+    const byId = new Map(all.map(n => [n.id, n.status]));
+    assert.equal(all.length, 3);   // a 시작, a·b·c가 만나는 곳, b·c 끝
+    assert.equal(byId.get('37.550200,127.040300'), 'accepted');   // accepted > rejected > none
+    assert.equal(byId.get('37.550400,127.040600'), 'rejected');
+    const narrow = { ...wide, minLat: 37.5501 };
+    const part = nodesOf(await roadsInBBox(db, narrow), narrow);
+    assert.equal(part.length, 2);   // a 시작점(37.55)은 bbox 밖
+    console.log('✓ nodes merge shared endpoints, best status wins');
+  }
+
   // 8. 실서버 export로 성능 (없으면 건너뜀)
   const dataDir = new URL('../../data/', import.meta.url);
   const exportFile = existsSync(dataDir) && readdirSync(dataDir).find(f => /^seongdong-roads-.*\.sqlite3$/.test(f));
@@ -181,6 +199,11 @@ async function main() {
     t = Date.now();
     const near = await roadsInBBox(db, { minLat: 37.547, maxLat: 37.553, minLon: 127.036, maxLon: 127.044 });
     console.log(`  bbox ±330m: ${near.length} roads ${Date.now() - t}ms`);
+    t = Date.now();   // 골목 단계가 시작되는 화면(경도폭 0.0078°, 폰 세로라 위도폭 0.0134°) — 그릴 노드 수의 최대치
+    const screen = { minLat: 37.5433, maxLat: 37.5567, minLon: 127.0366, maxLon: 127.0444 };
+    const rs = await roadsInBBox(db, screen);
+    const ns = nodesOf(rs, screen);
+    console.log(`  widest clip-level screen: ${rs.length} roads, ${ns.length} nodes ${Date.now() - t}ms`);
   }
   console.log('all checks passed');
 }

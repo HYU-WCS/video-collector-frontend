@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Network from 'expo-network';
@@ -23,7 +24,7 @@ export function useUploadQueue() {
   }, []);
 
   /** Wi-Fi면 바로, 모바일 데이터면 용량을 보여주고 확인받은 뒤 올린다 */
-  const uploadNow = useCallback(async () => {
+  const uploadNow = useCallback(async (onStart?: () => void) => {
     const net = await Network.getNetworkStateAsync();
     if (!net.isConnected || net.isInternetReachable === false) {
       Alert.alert('업로드', '인터넷에 연결되어 있지 않아요');
@@ -39,17 +40,23 @@ export function useUploadQueue() {
       Alert.alert('업로드', '서버 업로드는 아직 꺼져 있어요. 테스트 계정이 정해지면 켭니다.');
       return;
     }
+    onStart?.();
     await processQueue();
   }, []);
 
   // 실패한 것도 대기와 같이 올린다 — 서버가 받은 곳부터 이어 간다
-  const retry = uploadNow;
+  const retry = useCallback(() => uploadNow(), [uploadNow]);
 
   // 업로드는 화면과 상관없이 돈다(앱이 다시 앞으로 오면 이어 가기도 한다). 진행을 구독해서 그린다
-  useEffect(() => {
-    void refresh();
-    return onQueueChange(() => { setUploading(isUploading()); void refresh(); });
-  }, [refresh]);
+  useEffect(() => onQueueChange(() => { setUploading(isUploading()); void refresh(); }), [refresh]);
+  // 촬영은 큐 알림을 보내지 않아서, 화면으로 돌아올 때마다 다시 읽는다
+  useFocusEffect(useCallback(() => { void refresh(); }, [refresh]));
 
-  return { items, pending, uploading, refresh, uploadNow, retry };
+  // 이 폰에서 찍은 거리. 서버 진척도에는 거리가 없어서(2026-10-30 확인) 로컬 큐로 센다
+  const distance = useMemo(() => ({
+    total_m: items.reduce((s, i) => s + i.distance_m, 0),
+    uploaded_m: items.reduce((s, i) => s + (i.status === 'done' ? i.distance_m : 0), 0),
+  }), [items]);
+
+  return { items, pending, uploading, distance, refresh, uploadNow, retry };
 }

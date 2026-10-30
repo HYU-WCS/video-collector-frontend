@@ -7,7 +7,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.team.collector",
+      "bundleIdentifier": "com.dong11ro.collector",
+      "appleTeamId": "2WM498V2QU",
       "infoPlist": {
         "NSCameraUsageDescription": "도로 영상을 촬영하기 위해 카메라를 사용합니다.",
         "NSMicrophoneUsageDescription": "영상 촬영 시 사용됩니다.",
@@ -27,6 +28,13 @@
       ]
     },
     "plugins": [
+      [
+        "./plugins/withServerCa",
+        {
+          "cert": "./certs/dblab-8002-ca.pem",
+          "domain": "dblab.166.104.36.71.nip.io"
+        }
+      ],
       [
         "expo-camera",
         {

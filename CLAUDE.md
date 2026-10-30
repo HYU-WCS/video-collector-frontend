@@ -12,6 +12,7 @@
 | 통신 코드 | `docs/04-api.md` |
 | **기존 결정을 뒤집으려 할 때** | `docs/05-decisions.md` ← 반드시 |
 | 막혔을 때, 팀에 물어볼 것 | `docs/06-open-questions.md` |
+| iOS 빌드·설치 (무료 계정, 7일마다 재설치) | `docs/09-ios-build.md` |
 
 화면 시안 프롬프트는 `design/stitch-prompts.md`.
 
@@ -57,7 +58,7 @@ MVC를 요구받았으나 RN에서 고전적 MVC는 맞지 않아 역할만 지�
 - `src/controllers/` — `useXxx` 커스텀 훅. 상태 관리와 API 호출
 - `src/views/` — JSX만. 로직 없음
 
-지금은 `mockApi`를 본다. 백엔드가 붙으면 각 controller 상단의 `const source = mockApi`를 `api`로 교체.
+로그인·도로는 실서버 `api`, 영상 목록·검수 결과·지도 클립은 서버 API가 없어 `mockApi`(이 폰의 클립만 읽음)를 본다. 서버 API가 생기면 해당 controller 상단의 `const source = mockApi`를 `api`로 교체.
 
 ## 지금 상태
 

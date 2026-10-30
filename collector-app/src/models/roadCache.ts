@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { RoadSyncPage, RoadSyncRow } from './api';
-import type { BBox, RoadSegment, RoadStatus } from './types';
+import type { BBox, RoadNode, RoadSegment, RoadStatus } from './types';
 
 // 서버 도로의 로컬 사본 (백엔드 docs/road-sync.md). 서버가 원본이고, 앱은 revision까지 받은 결과를 들고 있다.
 // 지도·미니맵·큰길 분류는 네트워크가 아니라 여기를 읽는다 — 오프라인에서도 마지막으로 받은 도로가 보인다.
@@ -57,6 +57,11 @@ function upsertParams(r: RoadSyncRow, now: number) {
   ];
 }
 
+// expo-sqlite는 busy_timeout을 안 걸어 잠금을 만나면 바로 'database is locked'로 실패한다.
+// withExclusiveTransactionAsync는 새 연결을 열어서 메인 연결(db.ts)과 이 transaction 연결 양쪽에 건다.
+// BEGIN은 DEFERRED라 잠금을 잡지 않으니 task 첫 줄에서 걸어도 첫 쓰기 전에 적용된다
+export const BUSY_TIMEOUT = 'PRAGMA busy_timeout = 5000';
+
 const setMeta = (db: Db, key: string, value: string | number) =>
   db.runAsync('INSERT INTO road_sync_meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value', key, String(value));
 
@@ -66,6 +71,7 @@ const setMeta = (db: Db, key: string, value: string | number) =>
  */
 export async function applyRoadSyncPage(db: Db, page: RoadSyncPage, now = Date.now()) {
   await db.withExclusiveTransactionAsync(async txn => {
+    await txn.execAsync(BUSY_TIMEOUT);
     // 최초 동기화는 페이지당 1,000행 — 행마다 prepare/finalize하지 않게 한 번만 준비한다
     const upsert = await txn.prepareAsync(UPSERT);
     try {
@@ -85,6 +91,7 @@ export async function applyRoadSyncPage(db: Db, page: RoadSyncPage, now = Date.n
 /** 서버 revision이 로컬보다 뒤(서버 복원 등)일 때만 — 409. 네트워크 오류·5xx에서는 부르지 않는다 */
 export async function resetRoadCache(db: Db) {
   await db.withExclusiveTransactionAsync(async txn => {
+    await txn.execAsync(BUSY_TIMEOUT);
     await txn.runAsync('DELETE FROM road_cache');
     await txn.runAsync('DELETE FROM road_sync_meta');
   });
@@ -164,6 +171,28 @@ export async function roadsInBBox(db: Db, b: BBox) {
     `SELECT ${SEGMENT} FROM road_cache WHERE max_lat >= ? AND min_lat <= ? AND max_lon >= ? AND min_lon <= ?`,
     b.minLat, b.maxLat, b.minLon, b.maxLon,
   )).map(toSegment);
+}
+
+const RANK: Record<RoadStatus, number> = { none: 0, rejected: 1, pending: 2, accepted: 3 };
+
+/**
+ * bbox 안 노드(교차점·끝점). 구간 선의 양 끝 좌표가 같으면 같은 노드로 본다 — 서버 응답엔 노드 번호가 없다.
+ * 원본의 source_begin/end_node와 거의 같다 (성동구 노드 번호 7,718개, 좌표로 묶으면 7,780개).
+ * 색은 닿은 구간 중 가장 앞선 상태 — 도로 상태와 같은 순서 accepted > pending > rejected > none.
+ * roads는 같은 bbox의 roadsInBBox 결과 — 노드가 bbox 안이면 닿은 구간의 bbox도 반드시 겹치므로 빠짐없이 모인다.
+ */
+export function nodesOf(roads: RoadSegment[], b: BBox): RoadNode[] {
+  const nodes = new Map<string, RoadNode>();
+  for (const r of roads) {
+    for (const [lat, lon] of [r.geometry[0], r.geometry[r.geometry.length - 1]]) {
+      if (lat < b.minLat || lat > b.maxLat || lon < b.minLon || lon > b.maxLon) continue;
+      const id = `${lat.toFixed(6)},${lon.toFixed(6)}`;
+      const n = nodes.get(id);
+      if (!n) nodes.set(id, { id, lat, lon, status: r.status });
+      else if (RANK[r.status] > RANK[n.status]) n.status = r.status;
+    }
+  }
+  return [...nodes.values()];
 }
 
 /** 점이 다각형 안인가 (ray casting). ring은 [위도, 경도][] */

@@ -134,7 +134,8 @@ POST /api/review/rollback  { confirm_id }
 - 진척도 `{videos{ready}, uploaded_videos, reviews{pending}, accepted_roads, processed_ratio}` — **km 없음**
 - 궤적 조회는 GeoJSON LineString — t·acc가 빠진다
 
-- Base: `http://166.104.36.71:8002/video-collector/api/v1`
+- Base: `https://dblab.166.104.36.71.nip.io:8002/video-collector/api/v1`
+  (2026-10-24부터 HTTPS. 사설 CA `dblab-8002-Local-CA` — 기기·앱이 이 CA를 믿어야 연결된다. IP로 접속하면 인증서 이름이 안 맞는다)
 - 에러: `{ error: { code, message, request_id } }` — message가 한국어라 그대로 보여줘도 된다
 - **로그인은 `client_type: "mobile"` 필수.** 기본값 web은 Origin 검사에 걸려 403
 

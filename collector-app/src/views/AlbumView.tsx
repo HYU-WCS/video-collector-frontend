@@ -16,7 +16,7 @@ export function AlbumView({ navigation }: any) {
       {unuploaded > 0 && (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 8, padding: 12, borderRadius: 12, backgroundColor: Color.surface }}>
           <Text style={{ flex: 1 }}>업로드 안 된 클립 {unuploaded}개</Text>
-          <Pressable onPress={upload} disabled={uploading}
+          <Pressable onPress={() => upload(() => navigation.navigate('UploadQueue'))} disabled={uploading}
             style={{ backgroundColor: Color.accent, borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8, opacity: uploading ? 0.5 : 1 }}>
             <Text style={{ color: '#fff', fontWeight: '600' }}>{uploading ? '올리는 중…' : '업로드'}</Text>
           </Pressable>

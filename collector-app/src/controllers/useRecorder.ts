@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import * as Location from 'expo-location';
 import { useKeepAwake } from 'expo-keep-awake';
-import { adoptRecording, saveThumbnail, writeTrajectory } from '@/models/storage';
+import { adoptRecording, deleteLocal, saveThumbnail, writeTrajectory } from '@/models/storage';
 import { queue } from '@/models/db';
 import { initialDistance, shownDistance, stepDistance } from '@/models/distance';
 import type { TrajectoryPoint } from '@/models/types';
@@ -27,7 +27,7 @@ export type GpsQuality = 'good' | 'weak' | 'none';
 export function useRecorder() {
   useKeepAwake();   // 없으면 걷는 도중 화면이 꺼지고 녹화가 끊긴다
 
-  const [recording, setRecording] = useState(false);
+  const [recording, setRecording] = useState(false);   // 정지 후 종료 시트가 떠 있는 동안에도 true — finish 전까지 화면을 못 떠나게 하는 기준
   const [now, setNow] = useState(Date.now());   // 1초 틱 — 녹화 시간은 GPS와 무관하게 흐른다
   const [distance, setDistance] = useState(0);
   const [gps, setGps] = useState<GpsQuality>('none');
@@ -160,7 +160,9 @@ export function useRecorder() {
     const id = localId.current;
     const durationSec = startedAt.current ? Math.round((Date.now() - startedAt.current) / 1000) : 0;
     startedAt.current = 0;
-    if (!keep || !id) return null;
+    if (!id) return null;
+    // 10초마다 쓴 백업 궤적이 남으면 앨범·지도에 올라간 클립처럼 보인다. 폐기·다시 찍기는 그 클립 파일을 지운다.
+    if (!keep) { await deleteLocal(id, { keepTrajectory: false }); return null; }
 
     const videoPath = await adoptRecording(cacheUri, id);
     const trajPathStr = await writeTrajectory(id, {

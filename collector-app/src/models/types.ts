@@ -50,17 +50,18 @@ export interface RoadSegment {
   geometry: [number, number][];   // [lat, lon][]
 }
 
+/** 교차점·끝점. 도로 구간 선의 양 끝 */
+export interface RoadNode {
+  id: string;   // 좌표(소수 6자리)
+  lat: number;
+  lon: number;
+  status: RoadStatus;   // 닿은 구간 중 가장 앞선 상태
+}
+
 export interface ClipTrace {
   video_id: string;
   status: RoadStatus;
   geometry: [number, number][];
-}
-
-export interface Progress {
-  total_ratio: number;
-  my_distance_m: number;
-  confirmed_distance_m: number;   // accept된 것만
-  pending_distance_m: number;     // 검수 대기분
 }
 
 export interface BBox { minLat: number; minLon: number; maxLat: number; maxLon: number }

@@ -4,7 +4,7 @@ import type { BBox, RoadSegment, RoadStatus, User } from './types';
 // 지금 연결된 건 로그인·가입·업로드·지도(도로)뿐. 앨범·진척도는 수집가 계정과 궤적 형식이 정해진 뒤.
 // 응답 모양이 앱 타입과 다른 곳은 여기서 변환해, controllers는 mockApi와 같은 모양만 보게 한다.
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://166.104.36.71:8002/video-collector';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://dblab.166.104.36.71.nip.io:8002/video-collector';
 export const API = `${BASE_URL}/api/v1`;
 
 // access 토큰(15분)은 메모리에만, refresh 토큰은 SecureStore에 둔다 (storage.ts).
@@ -111,7 +111,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     if (!(e instanceof ApiError) || e.status !== 401 || !refreshToken) throw e;
     try {
       await refresh();
-    } catch {
+    } catch (r) {
+      // 서버가 refresh 토큰을 거부했을 때만 로그아웃. 네트워크 오류·5xx는 토큰을 두고 그 오류로 실패시킨다 —
+      // 401로 던지면 업로드가 재시도 없는 실패로 본다 (uploader.ts retryable)
+      if (!(r instanceof ApiError) || (r.status !== 401 && r.status !== 403)) throw r;
       setRefreshToken(null);
       onRefreshTokenChange(null);
       onUnauthorized();

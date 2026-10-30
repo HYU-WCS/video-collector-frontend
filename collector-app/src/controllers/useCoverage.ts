@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Dimensions } from 'react-native';
 import * as Location from 'expo-location';
 import { getDb } from '@/models/db';
 import { mockApi } from '@/models/mockApi';
 import dongBoundaries from '@/models/data/dongs.json';
-import { dongCoverage, reviewedRoads, roadsInBBox } from '@/models/roadCache';
+import { dongCoverage, nodesOf, reviewedRoads, roadsInBBox } from '@/models/roadCache';
 import { extraRoads, isMajorClip, isMajorName } from '@/models/roadClass';
-import type { ClipTrace, RoadSegment } from '@/models/types';
+import type { Region } from 'react-native-maps';
+import type { ClipTrace, RoadNode, RoadSegment } from '@/models/types';
 import { useRoadSync } from './useRoadSync';
 
 // 도로·동별 %는 로컬 도로 캐시(서버 동기화)를 읽는다 — 오프라인에서도 마지막으로 받은 상태가 보인다.
@@ -28,6 +30,7 @@ export type MapRoad = RoadSegment & { major: boolean };
 
 const boundaries = dongBoundaries as Omit<DongArea, 'ratio'>[];
 const SEONGDONG: [number, number] = [37.5506, 127.0409];
+const NODE_RADIUS_PT = 3;   // 노드 점 반지름. 지도 Circle은 미터 단위라 줌마다 화면 크기에 맞춰 다시 잰다
 
 // ponytail: 세션 동안만 기억한다. 클립이 수백 개로 늘어 지도 열 때마다 느려지면 파일로 남길 것
 const majorCache = new Map<string, boolean>();
@@ -54,6 +57,9 @@ export function useCoverage() {
   const [roads, setRoads] = useState<MapRoad[]>([]);
   const [rawClips, setRawClips] = useState<ClipTrace[]>([]);
   const [clips, setClips] = useState<MapClip[]>([]);
+  const [region, setRegion] = useState<Region | null>(null);
+  const [nodes, setNodes] = useState<RoadNode[]>([]);
+  const [network, setNetwork] = useState<RoadSegment[]>([]);   // 화면 안 아직 안 찍은 구간 — 노드를 잇는 회색 선
 
   useEffect(() => {
     // 마지막으로 알던 위치에서 시작. 권한이 없거나 기록이 없으면 성동구
@@ -77,9 +83,33 @@ export function useCoverage() {
     void Promise.all(rawClips.map(c => classify(c, sync.ready))).then(setClips, e => console.warn('[map] classify', e));
   }, [rawClips, sync.ready]);
 
-  const onZoom = useCallback((zoom: number) => setLevel(levelForZoom(zoom)), []);
+  // 도로망(노드 + 안 찍은 구간)은 골목 단계(z16~)에서 화면 안만 — 성동구 전체는 노드 7,800개·구간 9,500개라 다 그리면 버벅인다.
+  // ponytail: 가장 촘촘한 곳은 골목 단계 첫 화면에 노드 870개쯤. 버벅이면 z17부터 그리거나 개수를 자를 것
+  useEffect(() => {
+    if (!sync.ready || !region || level !== 'clip') { setNodes([]); setNetwork([]); return; }
+    let live = true;   // 지도를 빨리 옮기면 앞선 조회가 늦게 끝나 덮어쓰지 않게
+    const { latitude: lat, longitude: lon, latitudeDelta: dLat, longitudeDelta: dLon } = region;
+    const b = { minLat: lat - dLat / 2, maxLat: lat + dLat / 2, minLon: lon - dLon / 2, maxLon: lon + dLon / 2 };
+    void getDb()
+      .then(db => roadsInBBox(db, b))
+      .then(rs => {
+        if (!live) return;
+        setNodes(nodesOf(rs, b));
+        setNetwork(rs.filter(r => r.status === 'none'));   // 찍은 구간은 roads가 색으로 그린다
+      }, e => console.warn('[map] network', e));
+    return () => { live = false; };
+  }, [sync.ready, sync.revision, region, level]);
 
-  return { level, start, dongs, roads, clips, onZoom, sync };
+  const onRegion = useCallback((r: Region) => {
+    setRegion(r);
+    setLevel(levelForZoom(Math.round(Math.log2(360 / r.longitudeDelta))));
+  }, []);
+
+  const nodeRadius = region
+    ? region.longitudeDelta * 111_320 * Math.cos(region.latitude * Math.PI / 180) / Dimensions.get('window').width * NODE_RADIUS_PT
+    : 0;
+
+  return { level, start, dongs, roads, clips, network, nodes, nodeRadius, onRegion, sync };
 }
 
 /**

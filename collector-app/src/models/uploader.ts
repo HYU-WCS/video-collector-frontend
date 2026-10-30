@@ -1,5 +1,6 @@
 import { AppState } from 'react-native';
 import { File, Paths, UploadTask } from 'expo-file-system';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { API, ApiError, api, authHeader, hasSession, type ProcessingStatus, type UploadSession } from './api';
 import { queue, type QueueItem } from './db';
 import { deleteLocal, readTrajectory } from './storage';
@@ -27,9 +28,10 @@ const noAuto = new Set<string>();
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 let running = false;
-// 사용자가 업로드를 눌렀는데 아직 다 못 올림. 앱이 다시 앞으로 오면 이어 간다.
-// 새로 찍은 클립을 저절로 올리는 게 아니라, 누른 업로드를 마저 끝내는 것뿐이다 (D21).
-let wanted = false;
+// 사용자가 마지막으로 업로드를 눌렀을 때 큐에 있던 클립 중 아직 안 끝난 것. 앱이 다시 앞으로 오면 이것만 이어 간다.
+// 그 뒤에 찍은 클립은 넣지 않는다 — 모바일 데이터 확인 없이 올라가면 안 된다 (D21).
+let chosen = new Set<string>();
+const autoLeft = () => [...chosen].some(id => !noAuto.has(id));
 
 const listeners = new Set<() => void>();
 export function onQueueChange(fn: () => void) {
@@ -42,21 +44,25 @@ export const isUploading = () => running;
 
 // iOS는 백그라운드로 가면 JS가 멈춘다 — 보내던 청크 하나는 네이티브 세션이 마저 보낸다.
 // 안드로이드는 OS가 프로세스를 정리하기 전까지 백그라운드에서도 계속 보낸다.
-AppState.addEventListener('change', s => { if (s === 'active' && wanted) void processQueue(true); });
+AppState.addEventListener('change', s => { if (s === 'active' && autoLeft()) void processQueue(true); });
 
 /** auto: 사용자가 누른 게 아니라 앱 복귀로 이어 가는 것 — 자동 재시도 금지 항목은 건너뛴다 */
 export async function processQueue(auto = false): Promise<void> {
   if (!UPLOAD_ENABLED || running || !hasSession()) return;
-  running = true; wanted = true; notify();
-  let allDone = true;
+  running = true; notify();
+  // iOS는 화면이 꺼지면 JS가 멈춰 다음 청크를 못 보낸다 — 업로드하는 동안은 자동 잠금을 막는다
+  await activateKeepAwakeAsync('upload').catch(() => {});
   try {
-    for (const item of await queue.list()) {
-      if (item.status === 'done' || (auto && noAuto.has(item.local_id))) continue;
-      if (!(await upload(item))) allDone = false;
+    const items = (await queue.list()).filter(i => i.status !== 'done');
+    // 사용자 실행은 지금 큐를 고른다. auto는 고른 것 중 아직 큐에 남은 것만 (지운 클립은 빠진다)
+    chosen = new Set(items.map(i => i.local_id).filter(id => !auto || chosen.has(id)));
+    for (const item of items) {
+      if (!chosen.has(item.local_id) || (auto && noAuto.has(item.local_id))) continue;
+      if (await upload(item)) chosen.delete(item.local_id);
     }
   } finally {
     running = false;
-    if (allDone) wanted = false;
+    void deactivateKeepAwake('upload').catch(() => {});
     notify();
   }
 }

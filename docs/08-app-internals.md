@@ -35,11 +35,11 @@
 
 | 기능 | 상태 |
 |---|---|
-| 로그인 · 토큰 갱신 · 만료 시 로그아웃 | ✅ 실서버 |
+| 로그인 · 회원가입 · 토큰 갱신 · 만료 시 로그아웃 | ✅ 실서버 |
 | 미니맵의 도로 구간 · 지도의 큰길/골목 판정 | ✅ 실서버 (`/roads`) |
 | 촬영 · GPS 궤적 · 거리 · 로컬 저장 · 업로드 큐 적재 | ✅ 기기에서 동작 (iPhone + Expo Go 확인) |
 | 업로드 전송 | ⏸ 서버 형식으로 작성 완료, `UPLOAD_ENABLED = false` |
-| 진척도 · 앨범 · 반려 알림 · 동별 % · 지도 클립(이 폰의 궤적) · 회원가입 | 🟡 mock (서버 API 없음) |
+| 앨범 · 영상 상세 · 반려 알림 · 지도 클립 | 🟡 `mockApi`가 이 폰의 클립만 읽는다 (서버 영상·검수 API 없음). 검수는 전부 대기, 반려 알림은 안 뜬다 |
 | 영상 상세 플레이어 · 궤적 지도 · 설정 | ⬜ 미구현 |
 
 ---
@@ -77,10 +77,10 @@ src/
 
 | controller | 출처 |
 |---|---|
-| `useAuth` | 로그인 `api`, 회원가입 `mockApi` (가입 화면은 없음) |
-| `useCoverage` | 도로(큰길 판정) `api`, 동별 %·클립 `mockApi` |
-| `useAlbum`, `useRejectNotice` | `mockApi` |
-| `HomeView`(진척도), `VideoDetailView` | view가 `mockApi` 데이터를 직접 import (→ 11장 8번) |
+| `useAuth` | `api` (로그인·가입·로그아웃) |
+| `useCoverage` | 도로·동별 %는 로컬 도로 캐시(`useRoadSync`가 `api`에서 받음), 클립은 `mockApi`(이 폰의 궤적) |
+| `useAlbum`, `useRejectNotice`, `useVideoDetail` | `mockApi` — 이 폰의 클립만. 가짜 레코드는 없다 |
+| `useUploadQueue`(홈 km) | SQLite 업로드 큐 |
 
 **models는 controllers를 import하지 않는다.** 토큰이 갱신되거나 세션이 만료됐을 때 `api.ts`가 직접 로그아웃시키지 않는 이유다. 대신 App이 `onTokenRotated` / `onSessionExpired`로 콜백을 연결해 둔다.
 
@@ -498,7 +498,7 @@ uploadNow()
 ```
 화면 진입
   → 마지막으로 알던 위치(없으면 성동구)에서 z13으로 시작
-  → 동별 % (mock) + 동 경계(앱 내장) 합치기
+  → 동별 % (로컬 도로 캐시) + 동 경계(앱 내장) 합치기
   → 내 클립(이 폰의 궤적) 각각: 주변 서버 도로를 받아 큰길/골목 판정
 지도 이동/줌 끝 (onRegionChangeComplete)
   → zoom = round(log2(360 / longitudeDelta)) → 레벨만 바꾼다 (요청 없음)
@@ -538,7 +538,7 @@ uploadNow()
 ## 10. 홈 · 앨범 · 반려 알림
 
 **홈**
-- 진척도: `18.4km 촬영했어요! / 확정 8.1km · 검수중 4.3km` (mock). **금액이 아니라 km만** 보여준다(D13). 확정 = accept된 것만이라 대충 찍으면 확정 km가 늘지 않는다.
+- 진척도: `N km 촬영했어요! / 업로드 완료 X km · 대기 Y km` (업로드 큐에서 센 값). **금액이 아니라 km만** 보여준다(D13). 검수 API가 없어 확정(accept) km는 아직 없다.
 - `업로드 대기 N건`: SQLite에서 queued·uploading·failed를 센 실제 값이다. 누르면 업로드 화면으로 간다.
 - 반려 알림 배지, 지도·촬영·앨범 버튼, `[개발] 궤적 내보내기`.
 
@@ -573,8 +573,8 @@ SecureStore의 reject_seen_at (마지막으로 읽은 판정 시각)
 | 4 | 최종 궤적의 `recorded_at`이 시작이 아니라 **종료** 시각이다 | `useRecorder.ts:149` | 백업 파일은 시작 시각을 써서 서로 다르다. `t`는 시작 기준이므로 시작 시각이 맞다 |
 | 5 | `t`가 수신 시각을 정수 초로 반올림한 값이다 | `useRecorder.ts:103` | 영상과 지도가 최대 1초가량 어긋나고 같은 `t`가 생긴다(실측 33건). 더 정밀해야 하면 `loc.timestamp`를 쓰고 소수점까지 저장한다 — 팀 결정 필요 |
 | 6 | 백업이 "10초마다"가 아니라 "10번째 점마다"다 | `useRecorder.ts:116` | GPS가 끊기면 백업도 멈춘다 |
-| 7 | 지도는 내 클립만, 동 %는 목업이다. 내것/남의것 필터(D4)도 없다 | `useCoverage.ts`, `mockApi.ts` | 서버 클립·동 집계 API가 생기면 `source`만 교체 (D20) |
-| 8 | 홈과 영상 상세가 view에서 mock을 직접 import한다 | `HomeView.tsx:6`, `VideoDetailView.tsx:4` | "View에는 로직 없음" 원칙의 예외. 교체할 때 controller로 옮긴다 |
+| 7 | 지도 클립은 이 폰의 궤적뿐이다. 내것/남의것 필터(D4)도 없다 | `useCoverage.ts`, `mockApi.ts` | 서버 클립 API가 생기면 `source`만 교체 (D20) |
+| 8 | (해결됨) 홈과 영상 상세가 view에서 mock을 직접 import했다 | — | 지금은 둘 다 controller를 거친다 |
 | 9 | iOS iCloud 백업 제외 플래그가 없다 | `storage.ts` | `documentDirectory`는 기본적으로 백업 대상이라 영상이 쌓이면 개인 iCloud가 찬다 (D1) |
 | 10 | `road_cache` 테이블을 만들지만 쓰지 않는다 | `db.ts:29` | 오프라인 지도용으로 남아 있다 |
 | 11 | "다시 찍기"·"폐기" 때 카메라 캐시 파일을 지우지 않는다 | `useRecorder.ts:144` | OS가 정리하지만 저장공간이 빠듯하면 문제가 될 수 있다 |

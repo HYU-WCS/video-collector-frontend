@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import { migrateRoadCache } from './roadCache';
+import { BUSY_TIMEOUT, migrateRoadCache } from './roadCache';
 import type { UploadStatus } from './types';
 
 // 로컬 캐시 + 업로드 큐.
@@ -10,6 +10,8 @@ let _db: SQLite.SQLiteDatabase | null = null;
 export async function getDb() {
   if (_db) return _db;
   _db = await SQLite.openDatabaseAsync('collector.db');
+  // 도로 동기화 transaction(다른 연결)이 쓰는 동안 큐 쓰기가 실패하지 않고 기다리게 (roadCache.ts BUSY_TIMEOUT)
+  await _db.execAsync(BUSY_TIMEOUT);
   await _db.execAsync(`
     PRAGMA journal_mode = WAL;
 

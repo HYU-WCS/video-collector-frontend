@@ -50,8 +50,8 @@ export function useAlbum(filter: AlbumFilter = 'all') {
   useEffect(() => { setDone(false); void load(true); }, [filter]);
 
   const q = useUploadQueue();
-  const upload = useCallback(async () => {
-    await q.uploadNow();
+  const upload = useCallback(async (onStart?: () => void) => {
+    await q.uploadNow(onStart);
     await load(true);
   }, [q.uploadNow, load]);
 

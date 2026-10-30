@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { AppState, Linking, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { Alert, AppState, Linking, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { StatusBar } from 'expo-status-bar';
+import { usePreventRemove } from '@react-navigation/native';
 import { useRecorder } from '@/controllers/useRecorder';
 import { useNearbyRoads } from '@/controllers/useCoverage';
 import { MiniMap } from '@/views/MapView';
-import { StatusColor } from '@/theme/colors';
+import { Color, StatusColor } from '@/theme/colors';
 
 // 촬영 화면만 가로로 고정한다. 도로 폭을 넓게 담고, 모든 클립의 화면비를 통일하기 위해서다 (D17).
 // 회전을 따라가게 두면 세로·가로 클립이 섞여 검수와 데이터 품질이 들쭉날쭉해진다.
@@ -19,8 +20,14 @@ export function RecordView({ navigation }: any) {
   const [confirming, setConfirming] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [steps, setSteps] = useState('');   // [실험용] 직접 센 걸음 수
+  const [leaving, setLeaving] = useState(false);
   const insets = useSafeAreaInsets();
   const top = Math.max(insets.top, 12);
+
+  // 닫기 버튼만 숨기면 iOS 스와이프·안드로이드 뒤로가기로 나가져 영상이 큐에 안 들어가고 사라진다.
+  usePreventRemove(rec.recording, () => Alert.alert('촬영 중에는 나갈 수 없어요', '정지 버튼을 누른 뒤 저장하거나 폐기하세요.'));
+  // 저장·폐기 직후 바로 goBack하면 recording=false가 아직 반영 전이라 위 차단에 걸린다. 렌더가 끝난 뒤 나간다.
+  useEffect(() => { if (leaving) navigation.goBack(); }, [leaving]);
 
   useEffect(() => {
     void ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -144,9 +151,9 @@ export function RecordView({ navigation }: any) {
 
       {confirming && (
         <ConfirmSheet
-          onSave={async () => { await rec.finish(confirming, true, Number(steps) || undefined); setConfirming(null); navigation.goBack(); }}
+          onSave={async () => { await rec.finish(confirming, true, Number(steps) || undefined); setConfirming(null); setLeaving(true); }}
           onRetake={async () => { await rec.finish(confirming, false); setConfirming(null); }}
-          onDiscard={async () => { await rec.finish(confirming, false); setConfirming(null); navigation.goBack(); }}
+          onDiscard={async () => { await rec.finish(confirming, false); setConfirming(null); setLeaving(true); }}
         />
       )}
 
@@ -166,7 +173,10 @@ export function RecordView({ navigation }: any) {
 function ConfirmSheet({ onSave, onRetake, onDiscard }: Record<string, () => void>) {
   return (
     <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 16, borderTopRightRadius: 16, gap: 8 }}>
-      <Text style={{ fontSize: 16, marginBottom: 8 }}>촬영을 마칠까요?</Text>
+      {/* 시트가 떠 있는 동안에도 궤적은 계속 쌓인다(거리 로직은 그대로 둔다). 걸으면 거리가 늘어나므로 멈춰 세운다. */}
+      <Text style={{ fontSize: 20, fontWeight: '700', color: Color.danger, textAlign: 'center' }}>그 자리에 멈춰 서 주세요</Text>
+      <Text style={{ fontSize: 13, color: Color.textMuted, marginBottom: 4, textAlign: 'center' }}>저장이나 폐기를 누를 때까지 걷지 마세요</Text>
+      <Text style={{ fontSize: 16, marginBottom: 8, textAlign: 'center' }}>촬영을 마칠까요?</Text>
       <Pressable onPress={onSave}><Text style={{ padding: 12, textAlign: 'center' }}>저장</Text></Pressable>
       <Pressable onPress={onRetake}><Text style={{ padding: 12, textAlign: 'center' }}>다시 찍기</Text></Pressable>
       <Pressable onPress={onDiscard}><Text style={{ padding: 12, textAlign: 'center', color: StatusColor.rejected }}>폐기</Text></Pressable>

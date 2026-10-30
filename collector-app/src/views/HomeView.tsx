@@ -3,13 +3,12 @@ import { Screen } from '@/components/Screen';
 import { exportTrajectories } from '@/controllers/devExport';
 import { useRejectNotice } from '@/controllers/useRejectNotice';
 import { useUploadQueue } from '@/controllers/useUploadQueue';
-import { mockProgress } from '@/models/mockApi';
 import { Color, StatusColor } from '@/theme/colors';
 
 export function HomeView({ navigation }: any) {
-  const { pending } = useUploadQueue();
+  const { pending, distance } = useUploadQueue();
   const notice = useRejectNotice();
-  const p = mockProgress;
+  const km = (m: number) => (m / 1000).toFixed(1);
 
   return (
     <Screen title="영상 수집" right={
@@ -18,9 +17,9 @@ export function HomeView({ navigation }: any) {
       </Pressable>
     }>
       <View style={{ backgroundColor: Color.surface, borderRadius: 16, padding: 20, marginBottom: 16 }}>
-        <Text style={{ fontSize: 18 }}>{(p.my_distance_m / 1000).toFixed(1)}km 촬영했어요!</Text>
+        <Text style={{ fontSize: 18 }}>{km(distance.total_m)}km 촬영했어요!</Text>
         <Text style={{ color: Color.textMuted, marginTop: 6 }}>
-          확정 {(p.confirmed_distance_m / 1000).toFixed(1)}km · 검수중 {(p.pending_distance_m / 1000).toFixed(1)}km
+          업로드 완료 {km(distance.uploaded_m)}km · 대기 {km(distance.total_m - distance.uploaded_m)}km
         </Text>
       </View>
 

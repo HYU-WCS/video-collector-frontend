@@ -7,9 +7,10 @@ import { Color, StatusColor, StatusLabel } from '@/theme/colors';
 import type { RoadSegment, TrajectoryPoint } from '@/models/types';
 
 // 지도 SDK는 나중에 네이버로 교체한다. 그 교체 비용을 줄이려고 이 파일 밖으로 새어나가지 않게 둔다.
-// 찍은 길만 칠한다 — 서버 도로 중 검수에 걸린 것(모든 사용자) + 아직 매칭 전인 내 클립. 탭해도 아무것도 안 뜬다 (D20).
+// 찍은 길을 색으로 칠한다 — 서버 도로 중 검수에 걸린 것(모든 사용자) + 아직 매칭 전인 내 클립. 탭해도 아무것도 안 뜬다 (D20).
+// 골목 단계(z16~)에서는 안 찍은 길도 회색 선과 교차점으로 깐다 — 점만으로는 길이 어떻게 이어지는지 안 보였다.
 export function CoverageMapView({ navigation }: any) {
-  const { level, start, dongs, roads, clips, onZoom, sync } = useCoverage();
+  const { level, start, dongs, roads, clips, network, nodes, nodeRadius, onRegion, sync } = useCoverage();
   const insets = useSafeAreaInsets();
 
   return (
@@ -21,7 +22,7 @@ export function CoverageMapView({ navigation }: any) {
           showsUserLocation
           rotateEnabled={false}
           pitchEnabled={false}
-          onRegionChangeComplete={r => onZoom(Math.round(Math.log2(360 / r.longitudeDelta)))}
+          onRegionChangeComplete={onRegion}
         >
           {level === 'dong' && dongs.map(d => (
             <Polygon key={d.code}
@@ -37,6 +38,12 @@ export function CoverageMapView({ navigation }: any) {
               </View>
             </Marker>
           ))}
+          {/* 안 찍은 길 — 색 선 아래에 깔리게 먼저 그린다 */}
+          {network.map(r => (
+            <Polyline key={`net-${r.road_id}`}
+              coordinates={r.geometry.map(([latitude, longitude]) => ({ latitude, longitude }))}
+              strokeColor={StatusColor.none} strokeWidth={2} />
+          ))}
           {level !== 'dong' && clips.filter(c => level === 'clip' || c.major).map(c => (
             <Polyline key={c.video_id}
               coordinates={c.geometry.map(([latitude, longitude]) => ({ latitude, longitude }))}
@@ -47,6 +54,11 @@ export function CoverageMapView({ navigation }: any) {
             <Polyline key={r.road_id}
               coordinates={r.geometry.map(([latitude, longitude]) => ({ latitude, longitude }))}
               strokeColor={StatusColor[r.status]} strokeWidth={5} />
+          ))}
+          {/* 교차점 — 골목 단계에서 화면 안만. 닿은 구간이 하나라도 찍혔으면 그 상태 색, 아니면 회색(미촬영) */}
+          {nodes.map(n => (
+            <Circle key={n.id} center={{ latitude: n.lat, longitude: n.lon }} radius={nodeRadius}
+              fillColor={StatusColor[n.status]} strokeColor="#fff" strokeWidth={1} />
           ))}
         </MapView>
       )}
