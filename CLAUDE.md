@@ -13,6 +13,7 @@
 | **기존 결정을 뒤집으려 할 때** | `docs/05-decisions.md` ← 반드시 |
 | 막혔을 때, 팀에 물어볼 것 | `docs/06-open-questions.md` |
 | iOS 빌드·설치 (무료 계정, 7일마다 재설치) | `docs/09-ios-build.md` |
+| 새 버전 배포 (릴리스 노트·체크리스트) | `docs/10-release.md` |
 
 화면 시안 프롬프트는 `design/stitch-prompts.md`.
 
