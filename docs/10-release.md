@@ -94,18 +94,32 @@ Android는 APK 링크만 보내면 된다 (설치할 때 "출처를 알 수 없�
 > - Apple ID — 본인 것도 되지만 **새로 만든 보조 Apple ID를 추천**합니다 (비공식 설치 프로그램에 입력하기 때문)
 > - 제가 보낸 파일 2개: `collector-ios-….ipa`(앱), `dblab-8002-ca.crt`(서버 인증서)
 >
-> **1. 컴퓨터에 설치 프로그램 깔기**
-> - [sideloadly.io](https://sideloadly.io/)에서 Sideloadly를 받아 설치합니다.
-> - **Windows만:** iTunes와 iCloud가 필요한데, **Microsoft Store 버전이면 안 됩니다.** 이미 깔려 있으면 지우고 아래 링크로 다시 까세요.
->   - iTunes: `https://www.apple.com/itunes/download/win64`
->   - iCloud: `https://updates.cdn-apple.com/2020/windows/001-39935-20200911-1A70AA56-F448-11EA-8CC0-99D41950005E/iCloudSetup.exe`
-> - **Mac:** Sideloadly만 설치하면 됩니다.
+> **1. 컴퓨터 준비 (처음 한 번)** — 쓰는 컴퓨터 쪽만 따라 하세요
 >
-> **2. 앱 설치**
-> 1. iPhone을 케이블로 연결 → iPhone에 "이 컴퓨터를 신뢰하겠습니까?"가 뜨면 **신뢰** → 잠금 비밀번호 입력
-> 2. Sideloadly를 열고 `.ipa` 파일을 창에 끌어다 놓기
+> **Windows (10·11)**
+> 1. iTunes·iCloud가 **Microsoft Store에서 깐 것이면 지웁니다** (설정 → 앱 → 설치된 앱 → iTunes / iCloud → 제거). Store 버전으로는 Sideloadly가 iPhone을 못 찾습니다.
+> 2. 아래 링크로 받아 설치하고, 다 깔리면 **컴퓨터를 재시동**합니다.
+>    - iTunes: `https://www.apple.com/itunes/download/win64`
+>    - iCloud: `https://updates.cdn-apple.com/2020/windows/001-39935-20200911-1A70AA56-F448-11EA-8CC0-99D41950005E/iCloudSetup.exe`
+>    - (iCloud에 로그인할 필요는 없습니다. 깔려 있기만 하면 됩니다)
+> 3. [sideloadly.io](https://sideloadly.io/)에서 **Windows용**을 받아 설치합니다.
+>    "Windows의 PC 보호" 파란 창이 뜨면 **추가 정보 → 실행**.
+> 4. iPhone을 케이블로 연결 → **iTunes를 한 번 열어** iPhone 아이콘이 보이는지 확인합니다.
+>    iPhone에 "이 컴퓨터를 신뢰하겠습니까?"가 뜨면 **신뢰** → 잠금 비밀번호.
+>
+> **Mac**
+> 1. [sideloadly.io](https://sideloadly.io/)에서 **macOS용**을 받아 열고, Sideloadly를 **응용 프로그램** 폴더로 끌어 넣습니다.
+> 2. 처음 열 때 "확인되지 않은 개발자"로 막히면: 시스템 설정 → 개인정보 보호 및 보안 → 아래쪽 **그래도 열기**.
+>    도우미 설치나 권한을 물으면 허용합니다 (Mac 로그인 비밀번호).
+> 3. iPhone을 케이블로 연결 → Mac에 "액세서리 연결을 허용하겠습니까?"가 뜨면 **허용**
+>    → iPhone에 "이 컴퓨터를 신뢰하겠습니까?"가 뜨면 **신뢰** → 잠금 비밀번호.
+> 4. Finder 왼쪽 목록에 iPhone이 보이면 준비 끝 (iTunes·iCloud는 필요 없습니다).
+>
+> **2. 앱 설치** (Windows·Mac 같음)
+> 1. iPhone을 케이블로 연결한 채 Sideloadly를 엽니다. 위쪽 기기 칸에 내 iPhone 이름이 보여야 합니다.
+> 2. `.ipa` 파일을 Sideloadly 창 왼쪽 IPA 아이콘에 끌어다 놓기
 > 3. Apple ID 칸에 이메일 입력 → **Start** → Apple ID 비밀번호, 2단계 인증 코드 입력
-> 4. "Done"이 뜨면 설치 끝 (아직 앱은 안 열립니다)
+> 4. 아래에 "Done"이 뜨면 설치 끝 (아직 앱은 안 열립니다 → 3번)
 > - "bundle ID" 관련 오류가 나면: Sideloadly **Advanced options → Change Bundle ID**에 `com.본인영문이름.collector`를 넣고 다시 Start.
 >   **이 값을 적어 두고 다음부터 항상 똑같이** 쓰세요. 바뀌면 새 앱으로 깔려서 이전 앱의 영상이 섞이거나 사라집니다.
 >
@@ -126,13 +140,20 @@ Android는 APK 링크만 보내면 된다 (설치할 때 "출처를 알 수 없�
 > **6. 7일마다 다시 설치**
 > - 무료 설치라 **7일이 지나면 앱이 안 열립니다.** 지운 게 아니니 영상은 그대로 있습니다.
 > - 컴퓨터에 연결해서 2번을 똑같이 다시 하면 됩니다 (Change Bundle ID를 썼다면 같은 값). **앱을 지우지 말고** 그 위에 설치하세요.
-> - Sideloadly의 **auto-refresh**를 켜 두면 컴퓨터와 iPhone이 같은 Wi-Fi에 있을 때 알아서 갱신됩니다.
+> - 자동으로 갱신하려면 (선택): 설치할 때 Sideloadly의 **auto-refresh**를 켜 두고, 아래를 한 번 해 두면
+>   컴퓨터가 켜져 있고 iPhone과 같은 Wi-Fi일 때 알아서 다시 설치됩니다.
+>   - **Windows:** iTunes → iPhone 아이콘 → 요약 → **"Wi-Fi를 통해 이 iPhone과 동기화"** 체크 → 적용. Sideloadly는 끄지 말고 작업 표시줄에 둡니다.
+>   - **Mac:** Finder → iPhone → 일반 → **"Wi-Fi에 연결되어 있을 때 이 iPhone 보기"** 체크 → 적용.
+>   - 자동 갱신이 안 됐으면 6일째쯤 케이블로 2번을 직접 하는 게 확실합니다.
 >
 > **새 버전을 받았을 때:** 업로드를 먼저 다 끝내고(홈의 "업로드 대기" 표시가 없어질 때까지), 2번과 같은 방법으로 새 `.ipa`를 설치하세요. 3·4번은 다시 안 해도 됩니다.
 >
 > **안 될 때**
 > | 증상 | 해결 |
 > |---|---|
+> | Sideloadly에 iPhone이 안 보임 (Windows) | iTunes·iCloud가 Store 버전인지 확인 → 지우고 링크로 재설치 → 재시동. iPhone 잠금 풀고 "신뢰" |
+> | Sideloadly에 iPhone이 안 보임 (Mac) | Finder에 iPhone이 보이는지, "액세서리 허용"·"신뢰"를 눌렀는지. 케이블을 바꿔 보기 |
+> | Sideloadly가 안 열림 (Mac) | 시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기 |
 > | 앱 아이콘을 눌러도 바로 꺼짐 | 7일 만료 → 6번 |
 > | "신뢰하지 않는 개발자" | 3-2번 (VPN 및 기기 관리 → 신뢰) |
 > | 로그인·회원가입이 계속 실패 | 4-3번 인증서 신뢰가 켜져 있는지 |
