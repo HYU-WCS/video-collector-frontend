@@ -9,7 +9,7 @@ iOS는 무료 계정(`09-ios-build.md`), Android는 EAS `preview` 프로필 APK.
 |---|---|
 | 코드 | 커밋 `f9f3bc1`, 브랜치 `feat/field-fixes-1031` — **main 병합·push 안 함** |
 | iOS | Release 빌드 → 내 iPhone 설치 ✅, IPA `collector-app/dist/collector-ios-1.0.0-20261031.ipa` ✅, 원격 수집가 설치 ❌ |
-| Android | EAS 빌드 `0d6691cd-47ab-4023-94b5-2e1814194d5c` 대기열 중 |
+| Android | EAS 빌드 `0d6691cd-…` 완료 ✅ (APK 링크는 릴리스 기록), 수집가 설치 ❌ |
 | 실기기 확인 | 뒤로가기 차단·멈춤 안내·앨범 실데이터 — ❌ 아직 |
 
 ---
@@ -168,7 +168,7 @@ Android는 APK 링크만 보내면 된다 (설치할 때 "출처를 알 수 없�
 ### 1.0.0 (2026-10-31) — 현장 테스트 첫 배포
 
 - **커밋:** `f9f3bc1` (`feat/field-fixes-1031`)
-- **빌드:** iOS `dist/collector-ios-1.0.0-20261031.ipa` / Android EAS `0d6691cd-47ab-4023-94b5-2e1814194d5c`
+- **빌드:** iOS `dist/collector-ios-1.0.0-20261031.ipa` / Android EAS `0d6691cd-47ab-4023-94b5-2e1814194d5c` — APK https://expo.dev/artifacts/eas/PnOUqHmfsHZ94XuDHDGgOEtPNwPugQPn2rjrbYIUJ0I.apk
 - **바뀐 점**
   - 서버가 보안 연결(HTTPS)로 바뀌어 이 버전부터 다시 로그인·업로드된다
   - 업로드 중엔 화면이 자동으로 꺼지지 않고, 업로드 화면에 "나가지 마세요" 안내가 뜬다
